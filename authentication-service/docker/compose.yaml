@@ -1,0 +1,15 @@
+services:
+  postgres-authentication-service:
+    container_name: postgres-authentication-service
+    hostname: postgres-authentication-service
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: authentication-service
+      POSTGRES_USER: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /data/postgres
+    volumes:
+      - ./data/authentication-service:/data/postgres
+    ports:
+      - 5432:5432
+    restart: unless-stopped

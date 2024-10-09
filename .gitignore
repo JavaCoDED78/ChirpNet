@@ -32,4 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 
+### Additional ###
 .env
+*.jks
+/authentication-service/data/

@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: email-service
+  mail:
+    host: smtp.gmail.com
+    username: perfumestoreapp@gmail.com
+    password: oggmtuvzwyxbvifk
+    port: 465
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: email
+mail:
+  debug: false

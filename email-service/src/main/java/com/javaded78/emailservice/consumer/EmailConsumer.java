@@ -1,6 +1,6 @@
 package com.javaded78.emailservice.consumer;
 
-import com.javaded78.emailservice.event.SendEmailEvent;
+import com.javaded78.commons.event.SendEmailEvent;
 import com.javaded78.emailservice.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;

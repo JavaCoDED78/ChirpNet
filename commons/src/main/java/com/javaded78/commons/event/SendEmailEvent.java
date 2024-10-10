@@ -1,4 +1,4 @@
-package com.javaded78.emailservice.event;
+package com.javaded78.commons.event;
 
 import lombok.Builder;
 

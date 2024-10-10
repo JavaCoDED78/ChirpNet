@@ -1,6 +1,6 @@
 package com.javaded78.emailservice.service.impl;
 
-import com.javaded78.emailservice.event.SendEmailEvent;
+import com.javaded78.commons.event.SendEmailEvent;
 import com.javaded78.emailservice.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;

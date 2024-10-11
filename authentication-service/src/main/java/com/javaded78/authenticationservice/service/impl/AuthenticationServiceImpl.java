@@ -4,11 +4,13 @@ import com.javaded78.authenticationservice.client.ProfileServiceClient;
 import com.javaded78.authenticationservice.dto.request.CreateProfileRequest;
 import com.javaded78.authenticationservice.dto.request.RegisterRequest;
 import com.javaded78.authenticationservice.dto.response.ActivationCodeResponse;
+import com.javaded78.authenticationservice.dto.response.ActivationResponse;
+import com.javaded78.authenticationservice.model.ActivationCode;
 import com.javaded78.authenticationservice.model.TokenUser;
 import com.javaded78.authenticationservice.service.ActivationCodeService;
 import com.javaded78.authenticationservice.service.AuthenticationService;
 import com.javaded78.authenticationservice.service.MessageSourceService;
-import com.javaded78.authenticationservice.service.UserService;
+import com.javaded78.authenticationservice.service.TokenUserService;
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +24,7 @@ import java.time.LocalDate;
 @Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    private final UserService userService;
+    private final TokenUserService tokenUserService;
     private final MessageSourceService messageService;
     private final ProfileServiceClient profileServiceClient;
     private final ActivationCodeService activationCodeService;
@@ -30,13 +32,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public ActivationCodeResponse register(RegisterRequest request) {
-        if (userService.existsByEmail(request.email())) {
+        if (tokenUserService.existsByEmail(request.email())) {
             throw new EntityExistsException(
                     messageService.generateMessage("error.account.already_exists", request.email())
             );
         }
 
-        TokenUser newUser = userService.createUser(request.email(), request.username(), false);
+        TokenUser newUser = tokenUserService.createUser(request.email(), request.username(), false);
         log.info("AuthenticationServiceImpl | register | new user : {} has been created", newUser);
 
         CreateProfileRequest createProfileRequest = new CreateProfileRequest(
@@ -45,9 +47,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String profileId = profileServiceClient.createProfile(createProfileRequest);
         log.info("AuthenticationServiceImpl | register | new profile with id: {} has been created", profileId);
 
-        activationCodeService.sendActivationCode(newUser);
-        log.info("AuthenticationServiceImpl | register | activation code has been sent to {}", request.email());
-
+        activationCodeService.sendNewActivationCode(newUser);
         return new ActivationCodeResponse(messageService.generateMessage("activation.send.success"));
+    }
+
+    @Override
+    public ActivationResponse activate(String activationCode) {
+        ActivationCode activationCodeEntity = activationCodeService.getActivationCode(activationCode);
+        activationCodeService.checkActivationCodeExpiration(activationCodeEntity);
+        tokenUserService.enableAccount(activationCodeEntity.getUser());
+        activationCodeService.deleteActivationCode(activationCodeEntity.getId());
+
+        log.info("AuthenticationServiceImpl | activate | user {} has been successfully activated", activationCodeEntity.getUser().getEmail());
+        return new ActivationResponse(messageService.generateMessage("account.activation.success"));
     }
 }

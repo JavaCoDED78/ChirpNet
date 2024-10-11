@@ -6,11 +6,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import static com.javaded78.commons.constant.KafkaTopicConstants.SEND_EMAIL_TOPIC;
+
 @Component
 @RequiredArgsConstructor
 public class EmailConsumer {
 
-    public static final String SEND_EMAIL_TOPIC = "authentication-service.user.send-email";
     private final EmailService emailService;
 
     @KafkaListener(topics = SEND_EMAIL_TOPIC, groupId = "${spring.kafka.consumer.group-id}")

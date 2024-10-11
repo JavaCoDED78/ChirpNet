@@ -3,14 +3,14 @@ package com.javaded78.authenticationservice.service.impl;
 import com.javaded78.authenticationservice.model.Role;
 import com.javaded78.authenticationservice.model.TokenUser;
 import com.javaded78.authenticationservice.repository.TokenUserRepository;
-import com.javaded78.authenticationservice.service.UserService;
+import com.javaded78.authenticationservice.service.TokenUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class TokenUserServiceImpl implements TokenUserService {
 
     private final TokenUserRepository userRepository;
 
@@ -33,5 +33,10 @@ public class UserServiceImpl implements UserService {
                         .role(Role.ROLE_USER)
                         .build()
         );
+    }
+
+    @Override
+    public void enableAccount(TokenUser user) {
+
     }
 }

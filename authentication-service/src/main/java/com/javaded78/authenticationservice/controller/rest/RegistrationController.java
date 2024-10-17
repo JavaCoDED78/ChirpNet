@@ -3,7 +3,7 @@ package com.javaded78.authenticationservice.controller.rest;
 import com.javaded78.authenticationservice.dto.request.RegisterRequest;
 import com.javaded78.authenticationservice.dto.response.ActivationCodeResponse;
 import com.javaded78.authenticationservice.dto.response.ActivationResponse;
-import com.javaded78.authenticationservice.service.AuthenticationService;
+import com.javaded78.authenticationservice.service.RegistrationService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController("api/v1/auth")
 @RequiredArgsConstructor
-public class AuthenticationController {
+public class RegistrationController {
 
-    private final AuthenticationService authenticationService;
+    private final RegistrationService registrationService;
 
     @PostMapping("/register")
     public ResponseEntity<ActivationCodeResponse> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authenticationService.register(request));
+        return ResponseEntity.ok(registrationService.register(request));
     }
 
     @GetMapping("/activate")
@@ -30,6 +30,6 @@ public class AuthenticationController {
             @RequestParam @Pattern(regexp = "^\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}$", message = "{activation.invalid}")
             String activationCode
     ) {
-        return ResponseEntity.ok(authenticationService.activate(activationCode));
+        return ResponseEntity.ok(registrationService.activate(activationCode));
     }
 }

@@ -29,7 +29,7 @@ public class ActivationCode implements BaseEntity<Long> {
 
     @OneToOne
     @JoinColumn(name = "c_user_id")
-    private TokenUser user;
+    private User user;
 
     @Column(name = "c_code")
     private String code;

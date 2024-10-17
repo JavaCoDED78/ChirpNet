@@ -16,5 +16,5 @@ ALTER TABLE t_activation_code
 
 -- changeset javaded78:1728629229390-5
 ALTER TABLE t_activation_code
-    ADD CONSTRAINT FK_T_ACTIVATION_CODE_ON_C_USER FOREIGN KEY (c_user_id) REFERENCES t_user (id);
+    ADD CONSTRAINT fk_t_activation_code_on_c_user FOREIGN KEY (c_user_id) REFERENCES t_user (id);
 

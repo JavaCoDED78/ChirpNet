@@ -1,36 +1,34 @@
 package com.javaded78.authenticationservice.model;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import lombok.Setter;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "t_user")
-public class TokenUser implements UserDetails, BaseEntity<Long> {
+public class User implements BaseEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Transient
-    private Token token;
 
     @Column(name = "c_email", unique = true, nullable = false)
     private String email;
@@ -38,9 +36,14 @@ public class TokenUser implements UserDetails, BaseEntity<Long> {
     @Column(name = "c_password", nullable = false)
     private String password;
 
-    @Column(name = "c_role", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    @Column(name = "c_username", unique = true, nullable = false)
+    private String username;
+
+    @Column(name = "c_role")
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "t_users_roles")
+    @Enumerated(value = EnumType.STRING)
+    private Set<Role> roles;
 
     @Column(name = "c_is_account_non_expired", nullable = false)
     private boolean isAccountNonExpired;
@@ -53,14 +56,4 @@ public class TokenUser implements UserDetails, BaseEntity<Long> {
 
     @Column(name = "c_is_enabled", nullable = false)
     private boolean isEnabled;
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(role);
-    }
 }

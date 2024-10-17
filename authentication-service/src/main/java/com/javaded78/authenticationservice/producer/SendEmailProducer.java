@@ -2,6 +2,7 @@ package com.javaded78.authenticationservice.producer;
 
 import com.javaded78.commons.event.SendEmailEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 

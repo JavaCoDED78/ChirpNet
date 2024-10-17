@@ -2,7 +2,7 @@ package com.javaded78.authenticationservice.service.impl;
 
 import com.javaded78.authenticationservice.exception.ActivationCodeNotFoundException;
 import com.javaded78.authenticationservice.model.ActivationCode;
-import com.javaded78.authenticationservice.model.TokenUser;
+import com.javaded78.authenticationservice.model.User;
 import com.javaded78.authenticationservice.producer.SendEmailProducer;
 import com.javaded78.authenticationservice.repository.ActivationCodeRepository;
 import com.javaded78.authenticationservice.service.ActivationCodeService;
@@ -27,7 +27,7 @@ public class ActivationCodeServiceImpl implements ActivationCodeService {
     private final MessageSourceService messageSourceService;
 
     @Override
-    public void sendNewActivationCode(TokenUser user) {
+    public void sendNewActivationCode(User user) {
         ActivationCode activationCode = ActivationCode.builder()
                 .user(user)
                 .code(UUID.randomUUID().toString())

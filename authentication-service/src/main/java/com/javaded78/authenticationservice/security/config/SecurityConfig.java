@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -68,16 +69,20 @@ public class SecurityConfig {
             HttpSecurity http,
             JwtAuthenticationConfigurer jwtAuthenticationConfigurer
     ) throws Exception {
-        jwtAuthenticationConfigurer.configure(http);
+        http.apply(jwtAuthenticationConfigurer);
 
         return http
+//                .csrf(CsrfConfigurer::disable)
+//                .cors(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers("/api/v1/auth/**").permitAll()
+                                .requestMatchers("/api/v1/auth/register").permitAll()
+                                .requestMatchers("/api/v1/auth/activate/**").permitAll()
                                 .anyRequest().authenticated())
+                .anonymous(AbstractHttpConfigurer::disable)
                 .build();
     }
 
@@ -86,21 +91,20 @@ public class SecurityConfig {
                                                  MessageSourceService messageService
     ) {
         return user -> jdbcTemplate.query("SELECT * FROM t_user WHERE c_email = ?",
-                (rs, i) -> User.builder()
-                        .username(rs.getString("c_email"))
-                        .password(rs.getString("c_password"))
-                        .authorities(
-                                jdbcTemplate.query("SELECT c_role FROM t_users_roles WHERE c_user_id = ?",
-                                        (rs1, i1) ->
-                                                new SimpleGrantedAuthority(rs1.getString("c_role")),
-                                        rs.getInt("id")))
-                        .build(), user)
+                        (rs, i) -> User.builder()
+                                .username(rs.getString("c_email"))
+                                .password(rs.getString("c_password"))
+                                .authorities(
+                                        jdbcTemplate.query("SELECT c_authority FROM t_user_authority WHERE id_user = ?",
+                                                (rs1, i1) ->
+                                                        new SimpleGrantedAuthority(rs1.getString("c_authority")),
+                                                rs.getInt("id")))
+                                .build(), user)
                 .stream()
                 .findFirst()
                 .orElseThrow(() ->
                         new EntityNotFoundException(messageService.generateMessage("error.entity.not_found", user)));
     }
-
 
 
     @Bean

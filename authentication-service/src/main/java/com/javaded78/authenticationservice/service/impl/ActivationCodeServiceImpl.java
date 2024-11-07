@@ -26,6 +26,7 @@ public class ActivationCodeServiceImpl implements ActivationCodeService {
     private final ActivationCodeRepository activationCodeRepository;
     private final MessageSourceService messageSourceService;
 
+    @Transactional
     @Override
     public void sendNewActivationCode(User user) {
         ActivationCode activationCode = ActivationCode.builder()
@@ -38,9 +39,9 @@ public class ActivationCodeServiceImpl implements ActivationCodeService {
                 user.getUsername(),
                 activationCode.getCode()
         );
-        sendEmailProducer.sendEmail(sendEmailEvent);
         activationCodeRepository.save(activationCode);
-        log.info("ActivationCodeServiceImpl | sendNewActivationCode | activation code has been sent to {}", user.getEmail());
+        sendEmailProducer.sendEmail(sendEmailEvent);
+        log.info("ActivationCodeServiceImpl | sendNewActivationCode | activation message has been sent to {}", user.getEmail());
     }
 
     @Override
@@ -57,7 +58,7 @@ public class ActivationCodeServiceImpl implements ActivationCodeService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expirationTime = activationCode.getExpirationTime();
         if (now.isAfter(expirationTime)) {
-            log.info("ActivationCodeServiceImpl | checkActivationCodeExpiration | activation code {} has expired",
+            log.info("ActivationCodeServiceImpl | checkActivationCodeExpiration | activation message {} has expired",
                     activationCode.getCode()
             );
             deleteActivationCode(activationCode.getId());

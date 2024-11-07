@@ -33,7 +33,7 @@ import java.util.Objects;
 public class RequestJwtTokensFilter extends OncePerRequestFilter {
 
     private RequestMatcher requestMatcher = new AntPathRequestMatcher(
-            "api/v1/auth/authenticate",
+            "/api/v1/auth/authenticate",
             HttpMethod.POST.name()
     );
     private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();

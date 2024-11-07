@@ -44,11 +44,12 @@ public class RegistrationServiceImpl implements RegistrationService {
         CreateProfileRequest createProfileRequest = new CreateProfileRequest(
                 request.username(), request.email(), LocalDate.now()
         );
-        String profileId = profileServiceClient.createProfile(createProfileRequest);
-        log.info("AuthenticationServiceImpl | register | new profile with id: {} has been created", profileId);
+//        String profileId = profileServiceClient.createProfile(createProfileRequest);
+//        log.info("AuthenticationServiceImpl | register | new profile with id: {} has been created", profileId);
 
         activationCodeService.sendNewActivationCode(newUser);
-        return new ActivationCodeResponse(messageService.generateMessage("activation.send.success"));
+
+	    return new ActivationCodeResponse(messageService.generateMessage("activation.send.success"));
     }
 
     @Override

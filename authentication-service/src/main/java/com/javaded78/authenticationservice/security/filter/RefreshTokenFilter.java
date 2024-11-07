@@ -16,7 +16,6 @@ import lombok.Setter;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
@@ -32,40 +31,40 @@ import java.io.IOException;
 @Setter
 public class RefreshTokenFilter extends OncePerRequestFilter {
 
-    private RequestMatcher requestMatcher = new AntPathRequestMatcher(
-            "api/v1/auth/refresh",
-            HttpMethod.POST.name()
-    );
-    private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
-    private TokenFactory<Token, Token> accessTokenFactory = new DefaultAccesTokenFactory();
-    private TokenSerializer<Token, String> accessTokenStringSerializer = Object::toString;
-    private ObjectMapper objectMapper = new ObjectMapper();
+	private RequestMatcher requestMatcher = new AntPathRequestMatcher(
+			"/api/v1/auth/refresh",
+			HttpMethod.POST.name()
+	);
+	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
+	private TokenFactory<Token, Token> accessTokenFactory = new DefaultAccesTokenFactory();
+	private TokenSerializer<Token, String> accessTokenStringSerializer = Object::toString;
+	private ObjectMapper objectMapper = new ObjectMapper();
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+	@Override
+	protected void doFilterInternal(HttpServletRequest request,
+	                                HttpServletResponse response,
+	                                FilterChain filterChain) throws ServletException, IOException {
 
-        if (requestMatcher.matches(request)) {
-            if (this.securityContextRepository.containsContext(request)) {
-                SecurityContext context = this.securityContextRepository.loadDeferredContext(request).get();
-                if (context.getAuthentication() instanceof Authentication auth &&
-                    !(auth instanceof PreAuthenticatedAuthenticationToken) &&
-                    auth.getPrincipal() instanceof TokenUser user &&
-                    user.getAuthorities().contains(new SimpleGrantedAuthority("JWT_REFRESH"))) {
-                    Token accessToken = this.accessTokenFactory.create(user.getToken());
-                    response.setStatus(HttpServletResponse.SC_OK);
-                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                    this.objectMapper.writeValue(response.getWriter(),
-                            AuthResponse.builder()
-                                    .accessToken(accessTokenStringSerializer.serialize(accessToken))
-                                    .accessTokenExpiry(accessToken.expiresAt().toString())
-                                    .build());
-                    return;
-                }
-            }
-            throw new AccessDeniedException("User must be authenticated with JWT");
-        }
-        filterChain.doFilter(request, response);
-    }
+		if (requestMatcher.matches(request)) {
+			if (this.securityContextRepository.containsContext(request)) {
+				SecurityContext context = this.securityContextRepository.loadDeferredContext(request).get();
+				if (context != null && context.getAuthentication() instanceof PreAuthenticatedAuthenticationToken &&
+				    context.getAuthentication().getPrincipal() instanceof TokenUser user &&
+				    context.getAuthentication().getAuthorities().contains(new SimpleGrantedAuthority("JWT_REFRESH"))) {
+					Token accessToken = this.accessTokenFactory.create(user.getToken());
+					response.setStatus(HttpServletResponse.SC_OK);
+					response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+					this.objectMapper.writeValue(response.getWriter(),
+							AuthResponse.builder()
+									.accessToken(accessTokenStringSerializer.serialize(accessToken))
+									.accessTokenExpiry(accessToken.expiresAt().toString())
+									.build());
+					return;
+				}
+			}
+
+			throw new AccessDeniedException("User must be authenticated with JWT");
+		}
+		filterChain.doFilter(request, response);
+	}
 }

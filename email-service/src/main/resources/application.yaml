@@ -14,7 +14,7 @@ spring:
           starttls:
             enable: true
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
     consumer:
       group-id: email
 mail:

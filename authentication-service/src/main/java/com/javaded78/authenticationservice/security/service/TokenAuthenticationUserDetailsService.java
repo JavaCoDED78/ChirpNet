@@ -25,20 +25,21 @@ public class TokenAuthenticationUserDetailsService
     public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken authenticationToken)
             throws UsernameNotFoundException {
         if (authenticationToken.getPrincipal() instanceof Token token) {
-            return new TokenUser.Builder()
-                    .username(token.subject())
-                    .password("nopassword")
-                    .authorities(token.authorities().stream()
-                            .map(SimpleGrantedAuthority::new)
-                            .toList())
-                    .token(token)
-                    .enabled(true)
-                    .accountNonLocked(true)
-                    .accountNonExpired(Boolean.FALSE.equals(this.jdbcTemplate.queryForObject("""
-                            SELECT exists(SELECT id FROM t_deactivated_token WHERE id = ?)
-                            """, Boolean.class, token.id())) &&
-                                       token.expiresAt().isAfter(Instant.now()))
-                    .build();
+	        return new TokenUser.Builder()
+	                .username(token.subject())
+	                .password("nopassword")
+	                .authorities(token.authorities().stream()
+	                        .map(SimpleGrantedAuthority::new)
+	                        .toList())
+	                .token(token)
+	                .enabled(true)
+	                .accountNonLocked(true)
+	                .credentialsNonExpired(true)
+	                .accountNonExpired(Boolean.FALSE.equals(this.jdbcTemplate.queryForObject("""
+	                        SELECT exists(SELECT id FROM t_deactivated_token WHERE id = ?)
+	                        """, Boolean.class, token.id())) &&
+	                                   token.expiresAt().isAfter(Instant.now()))
+	                .build();
         }
         throw new EntityNotFoundException(messageService.generateMessage(
                 "error.principal.not_found"));

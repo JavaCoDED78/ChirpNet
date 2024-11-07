@@ -36,7 +36,11 @@ public class JwtAuthenticationConfigurer
         @SuppressWarnings("unchecked")
         CsrfConfigurer<HttpSecurity> csrfConfigurer = builder.getConfigurer(CsrfConfigurer.class);
         if (csrfConfigurer != null) {
-            csrfConfigurer.ignoringRequestMatchers(new AntPathRequestMatcher("/api/v1/auth/authenticate", "POST"));
+            csrfConfigurer.ignoringRequestMatchers(
+                    new AntPathRequestMatcher("/api/v1/auth/register", "POST"),
+                    new AntPathRequestMatcher("/api/v1/auth/authenticate", "POST"),
+                    new AntPathRequestMatcher("/api/v1/auth/activate", "GET")
+            );
         }
     }
 

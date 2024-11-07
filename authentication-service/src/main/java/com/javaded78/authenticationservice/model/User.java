@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,11 +40,11 @@ public class User implements BaseEntity<Long> {
     @Column(name = "c_username", unique = true, nullable = false)
     private String username;
 
-    @Column(name = "c_role")
+    @Column(name = "c_authority")
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "t_users_roles")
+    @CollectionTable(name = "t_user_authority", joinColumns = @JoinColumn(name = "id_user"))
     @Enumerated(value = EnumType.STRING)
-    private Set<Role> roles;
+    private Set<Role> authorities;
 
     @Column(name = "c_is_account_non_expired", nullable = false)
     private boolean isAccountNonExpired;

@@ -19,12 +19,13 @@ public class JwtAuthenticationConverter implements AuthenticationConverter {
         String authorization = request.getHeader("Authorization");
         if (authorization instanceof String auth && auth.startsWith("Bearer ")) {
             String token = auth.substring("Bearer ".length());
-            Token tokenResult = accessTokenStringDeserializer.deserialize(token);
-            if (tokenResult == null) {
-                tokenResult = refreshTokenStringDeserializer.deserialize(token);
+            Token accessTokenResult = accessTokenStringDeserializer.deserialize(token);
+            if (accessTokenResult != null) {
+	            return new PreAuthenticatedAuthenticationToken(accessTokenResult, token);
             }
-            if (tokenResult != null) {
-                return new PreAuthenticatedAuthenticationToken(tokenResult, token);
+            Token refreshTokenResult = refreshTokenStringDeserializer.deserialize(token);
+            if (refreshTokenResult != null) {
+	            return new PreAuthenticatedAuthenticationToken(refreshTokenResult, token);
             }
         }
         return null;

@@ -23,11 +23,11 @@ public class SendEmailProducer {
     public static SendEmailEvent toSendRegistrationEmailEvent(String toEmail, String name, String activationCode) {
         return SendEmailEvent.builder()
                 .toEmail(toEmail)
-                .subject("Registration code")
+                .subject("Registration message")
                 .template("registration-template")
                 .attributes(Map.of(
                         "name", name,
-                        "code", activationCode)
+                        "message", activationCode)
                 )
                 .build();
     }

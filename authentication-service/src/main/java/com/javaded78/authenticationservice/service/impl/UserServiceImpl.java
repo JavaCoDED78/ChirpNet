@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean existsByEmail(String email) {
-        return false;
+        return userRepository.existsByEmail(email);
     }
 
     @Override
@@ -32,8 +32,8 @@ public class UserServiceImpl implements UserService {
         User newUser = userMapper.toEntity(request);
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         Set<Role> roles = Set.of(Role.ROLE_USER);
-        newUser.setRoles(roles);
-        return userRepository.saveAndFlush(newUser);
+        newUser.setAuthorities(roles);
+        return userRepository.save(newUser);
     }
 
     @Override

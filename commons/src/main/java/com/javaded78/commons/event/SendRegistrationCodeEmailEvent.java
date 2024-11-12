@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.util.Map;
 
 @Builder
-public record SendEmailEvent(
+public record SendRegistrationCodeEmailEvent(
         String toEmail,
         String subject,
         String template,

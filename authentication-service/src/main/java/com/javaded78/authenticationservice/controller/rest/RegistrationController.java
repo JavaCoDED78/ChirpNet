@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RegistrationController {
 
+    public static final String PATTERN_REQUEST_CODE = "^\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}$";
     private final RegistrationService registrationService;
 
     @PostMapping("/register")
@@ -30,7 +31,7 @@ public class RegistrationController {
 
     @GetMapping("/activate")
     public ResponseEntity<ActivationResponse> activate(
-            @RequestParam @Pattern(regexp = "^\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}$", message = "{activation.invalid}")
+            @RequestParam @Pattern(regexp = PATTERN_REQUEST_CODE, message = "{activation.invalid}")
             String activationCode
     ) {
         return ResponseEntity.ok(registrationService.activate(activationCode));

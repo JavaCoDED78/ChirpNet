@@ -7,7 +7,7 @@ import com.javaded78.authenticationservice.producer.SendEmailProducer;
 import com.javaded78.authenticationservice.repository.ActivationCodeRepository;
 import com.javaded78.authenticationservice.service.ActivationCodeService;
 import com.javaded78.authenticationservice.service.MessageSourceService;
-import com.javaded78.commons.event.SendEmailEvent;
+import com.javaded78.commons.event.SendRegistrationCodeEmailEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,15 +32,15 @@ public class ActivationCodeServiceImpl implements ActivationCodeService {
         ActivationCode activationCode = ActivationCode.builder()
                 .user(user)
                 .code(UUID.randomUUID().toString())
-                .expirationTime(LocalDateTime.now().plusHours(1L))
+                .expirationTime(LocalDateTime.now().plusHours(2L))
                 .build();
-        SendEmailEvent sendEmailEvent = SendEmailProducer.toSendRegistrationEmailEvent(
+        SendRegistrationCodeEmailEvent sendRegistrationCodeEmailEvent = SendEmailProducer.toSendRegistrationEmailEvent(
                 user.getEmail(),
                 user.getUsername(),
                 activationCode.getCode()
         );
         activationCodeRepository.save(activationCode);
-        sendEmailProducer.sendEmail(sendEmailEvent);
+        sendEmailProducer.sendEmail(sendRegistrationCodeEmailEvent);
         log.info("ActivationCodeServiceImpl | sendNewActivationCode | activation message has been sent to {}", user.getEmail());
     }
 

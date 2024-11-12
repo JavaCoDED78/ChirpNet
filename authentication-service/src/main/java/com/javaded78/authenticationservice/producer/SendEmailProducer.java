@@ -1,8 +1,7 @@
 package com.javaded78.authenticationservice.producer;
 
-import com.javaded78.commons.event.SendEmailEvent;
+import com.javaded78.commons.event.SendRegistrationCodeEmailEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -14,20 +13,20 @@ import static com.javaded78.commons.constant.KafkaTopicConstants.SEND_EMAIL_TOPI
 @RequiredArgsConstructor
 public class SendEmailProducer {
 
-    private final KafkaTemplate<String, SendEmailEvent> kafkaTemplate;
+    private final KafkaTemplate<String, SendRegistrationCodeEmailEvent> kafkaTemplate;
 
-    public void sendEmail(SendEmailEvent sendEmailEvent) {
-        kafkaTemplate.send(SEND_EMAIL_TOPIC, sendEmailEvent);
+    public void sendEmail(SendRegistrationCodeEmailEvent sendRegistrationCodeEmailEvent) {
+        kafkaTemplate.send(SEND_EMAIL_TOPIC, sendRegistrationCodeEmailEvent);
     }
 
-    public static SendEmailEvent toSendRegistrationEmailEvent(String toEmail, String name, String activationCode) {
-        return SendEmailEvent.builder()
+    public static SendRegistrationCodeEmailEvent toSendRegistrationEmailEvent(String toEmail, String name, String activationCode) {
+        return SendRegistrationCodeEmailEvent.builder()
                 .toEmail(toEmail)
                 .subject("Registration message")
                 .template("registration-template")
                 .attributes(Map.of(
                         "name", name,
-                        "message", activationCode)
+                        "code", activationCode)
                 )
                 .build();
     }

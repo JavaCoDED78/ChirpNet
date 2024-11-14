@@ -50,5 +50,4 @@ public class EmailConfiguration {
 		templateEngine.setTemplateResolver(templateResolver());
 		return templateEngine;
 	}
-
 }

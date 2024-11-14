@@ -1,5 +1,6 @@
 package com.javaded78.emailservice.configuration;
 
+import com.javaded78.emailservice.exception.NotRetryableException;
 import com.javaded78.emailservice.exception.RetryableException;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -58,6 +59,7 @@ public class KafkaConsumerConfiguration {
 		DefaultErrorHandler errorHandler = new DefaultErrorHandler(new DeadLetterPublishingRecoverer(kafkaTemplate),
 				new FixedBackOff(3000, 3));
 		errorHandler.addRetryableExceptions(RetryableException.class);
+		errorHandler.addNotRetryableExceptions(NotRetryableException.class);
 		factory.setConsumerFactory(consumerFactory);
 		factory.setCommonErrorHandler(errorHandler);
 		return factory;
@@ -76,5 +78,4 @@ public class KafkaConsumerConfiguration {
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 		return new DefaultKafkaProducerFactory<>(props);
 	}
-
 }

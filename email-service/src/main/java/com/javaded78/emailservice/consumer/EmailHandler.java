@@ -12,7 +12,7 @@ import static com.javaded78.commons.constant.KafkaTopicConstants.SEND_EMAIL_TOPI
 @Component
 @RequiredArgsConstructor
 @KafkaListener(topics = SEND_EMAIL_TOPIC, groupId = "${spring.kafka.consumer.group-id}")
-public class EmailConsumer {
+public class EmailHandler {
 
 	private final EmailService emailService;
 

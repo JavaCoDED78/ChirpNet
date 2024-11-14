@@ -33,10 +33,12 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       acks: all
+      transaction-id-prefix: authentication-service-${random.uuid}-
       properties:
         delivery.timeout.ms: 20000
         linger.ms: 0
         request.timeout.ms: 10000
+        max.in.flight.requests.per.connection: 5
         enable:
           idempotence: true
 
@@ -48,3 +50,7 @@ jwt:
 logging:
   level:
     org.springframework.security: trace
+    org.springframework.kafka.transaction.KafkaAwareTransactionManager: trace
+    org.springframework.transaction: trace
+    org.springframework.orm.jpa.JpaTransactionManager: trace
+    org.apache.kafka.clients.producer.internals.TransactionManager: trace

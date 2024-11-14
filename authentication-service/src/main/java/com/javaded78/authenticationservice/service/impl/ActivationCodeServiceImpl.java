@@ -3,7 +3,7 @@ package com.javaded78.authenticationservice.service.impl;
 import com.javaded78.authenticationservice.exception.ActivationCodeNotFoundException;
 import com.javaded78.authenticationservice.model.ActivationCode;
 import com.javaded78.authenticationservice.model.User;
-import com.javaded78.authenticationservice.producer.SendEmailProducer;
+import com.javaded78.authenticationservice.producer.SendRegistrationEmailProducer;
 import com.javaded78.authenticationservice.repository.ActivationCodeRepository;
 import com.javaded78.authenticationservice.service.ActivationCodeService;
 import com.javaded78.authenticationservice.service.MessageSourceService;
@@ -22,11 +22,11 @@ import java.util.UUID;
 @Slf4j
 public class ActivationCodeServiceImpl implements ActivationCodeService {
 
-    private final SendEmailProducer sendEmailProducer;
+    private final SendRegistrationEmailProducer sendRegistrationEmailProducer;
     private final ActivationCodeRepository activationCodeRepository;
     private final MessageSourceService messageSourceService;
 
-    @Transactional
+    @Transactional("jpaTransactionManager")
     @Override
     public void sendNewActivationCode(User user) {
         ActivationCode activationCode = ActivationCode.builder()
@@ -34,13 +34,13 @@ public class ActivationCodeServiceImpl implements ActivationCodeService {
                 .code(UUID.randomUUID().toString())
                 .expirationTime(LocalDateTime.now().plusHours(2L))
                 .build();
-        SendRegistrationCodeEmailEvent sendRegistrationCodeEmailEvent = SendEmailProducer.toSendRegistrationEmailEvent(
+        SendRegistrationCodeEmailEvent sendRegistrationCodeEmailEvent = SendRegistrationEmailProducer.toSendRegistrationEmailEvent(
                 user.getEmail(),
                 user.getUsername(),
                 activationCode.getCode()
         );
         activationCodeRepository.save(activationCode);
-        sendEmailProducer.sendEmail(sendRegistrationCodeEmailEvent);
+        sendRegistrationEmailProducer.sendRegistrationEmail(sendRegistrationCodeEmailEvent);
         log.info("ActivationCodeServiceImpl | sendNewActivationCode | activation message has been sent to {}", user.getEmail());
     }
 

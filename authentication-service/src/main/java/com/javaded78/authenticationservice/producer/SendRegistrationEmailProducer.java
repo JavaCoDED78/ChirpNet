@@ -11,11 +11,11 @@ import static com.javaded78.commons.constant.KafkaTopicConstants.SEND_EMAIL_TOPI
 
 @Component
 @RequiredArgsConstructor
-public class SendEmailProducer {
+public class SendRegistrationEmailProducer {
 
     private final KafkaTemplate<String, SendRegistrationCodeEmailEvent> kafkaTemplate;
 
-    public void sendEmail(SendRegistrationCodeEmailEvent sendRegistrationCodeEmailEvent) {
+    public void sendRegistrationEmail(SendRegistrationCodeEmailEvent sendRegistrationCodeEmailEvent) {
         kafkaTemplate.send(SEND_EMAIL_TOPIC, sendRegistrationCodeEmailEvent);
     }
 

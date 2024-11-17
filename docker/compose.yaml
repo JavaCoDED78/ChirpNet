@@ -11,7 +11,7 @@ services:
     volumes:
       - D:/tmp/chirnet/volumes/data/authentication-service:/data/postgres
     ports:
-      - 5432:5432
+      - "5432:5432"
     restart: unless-stopped
 
   kafka-1:
@@ -64,6 +64,30 @@ services:
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
     volumes:
       - D:/tmp/chirnet/volumes/server-3/:/bitnami/kafka
+
+  mongo-profile-service:
+    container_name: mongo-profile-service
+    hostname: mongo-profile-service
+    image: mongo:jammy
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    ports:
+      - "27017:27017"
+    restart: unless-stopped
+    volumes:
+      - D:/tmp/chirnet/volumes/data/profile-service/data:/data/db
+
+  redis-profile-service:
+    container_name: redis-profile-service
+    hostname: redis-profile-service
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - D:/tmp/chirnet/volumes/data/profile-service/cache:/data
 
 #  zookeeper:
 #    container_name: zookeeper

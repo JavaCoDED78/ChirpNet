@@ -36,4 +36,5 @@ build/
 .env
 *.jks
 /authentication-service/data/
-!/.fastRequest/
+/.fastRequest/
+

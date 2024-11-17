@@ -1,10 +1,15 @@
 package com.javaded78.authenticationservice.service;
 
-import com.javaded78.authenticationservice.model.TokenUser;
+import com.javaded78.authenticationservice.dto.request.RegisterRequest;
+import com.javaded78.authenticationservice.model.User;
 
 public interface UserService {
 
     boolean existsByEmail(String email);
 
-    TokenUser createUser(String email, String password, boolean iaEnabled);
+    boolean existsByUsername(String username);
+
+    User createUser(RegisterRequest request);
+
+    void enableAccount(User user);
 }

@@ -1,73 +1,53 @@
 package com.javaded78.emailservice.configuration;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
+import java.util.Objects;
 import java.util.Properties;
 
 @Configuration
+@RequiredArgsConstructor
 public class EmailConfiguration {
 
-    @Value("${spring.mail.host}")
-    private String host;
+	private final Environment env;
 
-    @Value("${spring.mail.username}")
-    private String username;
+	@Bean
+	public JavaMailSender getJavaMailSender() {
+		JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+		javaMailSender.setHost(env.getProperty("spring.mail.host"));
+		javaMailSender.setPort(Integer.parseInt(Objects.requireNonNull(env.getProperty("spring.mail.port"))));
+		javaMailSender.setUsername(env.getProperty("spring.mail.username"));
+		javaMailSender.setPassword(env.getProperty("spring.mail.password"));
+		Properties mailProperties = javaMailSender.getJavaMailProperties();
+		mailProperties.setProperty("mail.debug", env.getProperty("mail.debug"));
+		mailProperties.setProperty("mail.transport.protocol", env.getProperty("spring.mail.protocol"));
+		mailProperties.setProperty("mail.smtp.auth", env.getProperty("spring.mail.properties.mail.smtp.auth"));
+		mailProperties.setProperty("mail.smtp.starttls.enable", env.getProperty("spring.mail.properties.mail.smtp.starttls.enable"));
+		return javaMailSender;
+	}
 
-    @Value("${spring.mail.password}")
-    private String password;
+	@Bean
+	ITemplateResolver templateResolver() {
+		ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+		templateResolver.setPrefix("templates/");
+		templateResolver.setSuffix(".html");
+		templateResolver.setTemplateMode("HTML");
+		templateResolver.setCharacterEncoding("UTF-8");
+		return templateResolver;
+	}
 
-    @Value("${spring.mail.port}")
-    private int port;
-
-    @Value("${spring.mail.protocol}")
-    private String protocol;
-
-    @Value("${spring.mail.properties.mail.smtp.auth}")
-    private String auth;
-
-    @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
-    private String enable;
-
-    @Value("${mail.debug}")
-    private String debug;
-
-    @Bean
-    public JavaMailSender getJavaMailSender() {
-        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-        javaMailSender.setHost(host);
-        javaMailSender.setPort(port);
-        javaMailSender.setUsername(username);
-        javaMailSender.setPassword(password);
-        Properties mailProperties = javaMailSender.getJavaMailProperties();
-        mailProperties.setProperty("mail.debug", debug);
-        mailProperties.setProperty("mail.transport.protocol", protocol);
-        mailProperties.setProperty("mail.smtp.auth", auth);
-        mailProperties.setProperty("mail.smtp.starttls.enable", enable);
-        return javaMailSender;
-    }
-
-    @Bean
-    ITemplateResolver templateResolver() {
-        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-        templateResolver.setPrefix("templates/");
-        templateResolver.setSuffix(".html");
-        templateResolver.setTemplateMode("HTML");
-        templateResolver.setCharacterEncoding("UTF-8");
-        return templateResolver;
-    }
-
-    @Bean
-    public SpringTemplateEngine templateEngine() {
-        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-        templateEngine.setTemplateResolver(templateResolver());
-        return templateEngine;
-    }
-
+	@Bean
+	public SpringTemplateEngine templateEngine() {
+		SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+		templateEngine.setTemplateResolver(templateResolver());
+		return templateEngine;
+	}
 }

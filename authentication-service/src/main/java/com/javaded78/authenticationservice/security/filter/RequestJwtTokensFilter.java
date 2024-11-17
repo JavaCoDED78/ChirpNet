@@ -7,6 +7,7 @@ import com.javaded78.authenticationservice.security.service.TokenSerializer;
 import com.javaded78.authenticationservice.security.factory.DefaultAccesTokenFactory;
 import com.javaded78.authenticationservice.security.factory.DefaultRefreshTokenFactory;
 import com.javaded78.authenticationservice.security.factory.TokenFactory;
+import com.javaded78.authenticationservice.service.MessageSourceService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,10 +29,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Objects;
 
-@NoArgsConstructor
 @Setter
 public class RequestJwtTokensFilter extends OncePerRequestFilter {
 
+    private final MessageSourceService messageSourceService;
     private RequestMatcher requestMatcher = new AntPathRequestMatcher(
             "/api/v1/auth/authenticate",
             HttpMethod.POST.name()
@@ -42,6 +43,10 @@ public class RequestJwtTokensFilter extends OncePerRequestFilter {
     private TokenSerializer<Token, String> accessTokenSerializer = Objects::toString;
     private TokenSerializer<Token, String> refreshTokenSerializer = Objects::toString;
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    public RequestJwtTokensFilter(MessageSourceService messageSourceService) {
+        this.messageSourceService = messageSourceService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -67,7 +72,7 @@ public class RequestJwtTokensFilter extends OncePerRequestFilter {
                     return;
                 }
             }
-            throw new AccessDeniedException("User must be authenticated");
+            throw new AccessDeniedException(messageSourceService.generateMessage("error.user.not_authenticated"));
         }
         filterChain.doFilter(request, response);
     }

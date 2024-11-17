@@ -1,6 +1,7 @@
 package com.javaded78.authenticationservice.security.filter;
 
 import com.javaded78.authenticationservice.security.jwt.TokenUser;
+import com.javaded78.authenticationservice.service.MessageSourceService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,9 +32,11 @@ public class JwtLogoutFilter extends OncePerRequestFilter {
 	);
 	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
 	private final JdbcTemplate jdbcTemplate;
+	private final MessageSourceService messageSourceService;
 
-	public JwtLogoutFilter(JdbcTemplate jdbcTemplate) {
+	public JwtLogoutFilter(JdbcTemplate jdbcTemplate, MessageSourceService messageSourceService) {
 		this.jdbcTemplate = jdbcTemplate;
+		this.messageSourceService = messageSourceService;
 	}
 
 	@Override
@@ -52,7 +55,7 @@ public class JwtLogoutFilter extends OncePerRequestFilter {
 					return;
 				}
 			}
-			throw new AccessDeniedException("User must be authenticated with JWT");
+			throw new AccessDeniedException(messageSourceService.generateMessage("error.user.not_authenticated_by_jwt"));
 		}
 		filterChain.doFilter(request, response);
 	}

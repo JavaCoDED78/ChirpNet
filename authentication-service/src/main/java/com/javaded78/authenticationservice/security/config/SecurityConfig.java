@@ -12,11 +12,15 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -26,11 +30,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.text.ParseException;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final MessageSourceService messageSourceService;
 
     @Bean
     public JwtAuthenticationConfigurer jwtAuthenticationConfigurer(
@@ -72,11 +80,24 @@ public class SecurityConfig {
         http.apply(jwtAuthenticationConfigurer);
 
         return http
-//                .csrf(CsrfConfigurer::disable)
-//                .cors(Customizer.withDefaults())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling
+                                .authenticationEntryPoint((
+                                        request, response, authException
+                                ) -> {
+                                    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                                    response.getWriter().write(messageSourceService.generateMessage("error.user.not_authenticated_by_jwt"));
+                                })
+                                .accessDeniedHandler((
+                                        request, response, accessDeniedException
+                                ) -> {
+                                    response.setStatus(HttpStatus.FORBIDDEN.value());
+                                    response.getWriter().write(messageSourceService.generateMessage("error.user.not_authenticated_by_jwt"));
+                                })
+                )
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
                                 .requestMatchers("/api/v1/auth/register").permitAll()

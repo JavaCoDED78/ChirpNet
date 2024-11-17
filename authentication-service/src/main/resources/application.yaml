@@ -42,10 +42,19 @@ spring:
         enable:
           idempotence: true
 
-
 jwt:
   access-token-key: '{"kty":"oct","k":"hi7S5RX5ZRZooHA0RKGctZ-KtR9FoESgCnH-3BNg5XI"}'
   refresh-token-key: '{"kty":"oct","k":"956PBFst1FguLr5irJD-aQ"}'
+
+feign:
+  circuitbreaker:
+    enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      profile-service:
+        miimum-number-of-calls: 5
 
 logging:
   level:

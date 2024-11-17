@@ -1,5 +1,6 @@
 package com.javaded78.authenticationservice.service.impl;
 
+import com.javaded78.authenticationservice.exception.ActivationCodeExpiredException;
 import com.javaded78.authenticationservice.exception.ActivationCodeNotFoundException;
 import com.javaded78.authenticationservice.model.ActivationCode;
 import com.javaded78.authenticationservice.model.User;
@@ -22,62 +23,61 @@ import java.util.UUID;
 @Slf4j
 public class ActivationCodeServiceImpl implements ActivationCodeService {
 
-    private final SendRegistrationEmailProducer sendRegistrationEmailProducer;
-    private final ActivationCodeRepository activationCodeRepository;
-    private final MessageSourceService messageSourceService;
+	private final SendRegistrationEmailProducer sendRegistrationEmailProducer;
+	private final ActivationCodeRepository activationCodeRepository;
+	private final MessageSourceService messageSourceService;
 
-    @Transactional("jpaTransactionManager")
-    @Override
-    public void sendNewActivationCode(User user) {
-        ActivationCode activationCode = ActivationCode.builder()
-                .user(user)
-                .code(UUID.randomUUID().toString())
-                .expirationTime(LocalDateTime.now().plusHours(2L))
-                .build();
-        SendRegistrationCodeEmailEvent sendRegistrationCodeEmailEvent = SendRegistrationEmailProducer.toSendRegistrationEmailEvent(
-                user.getEmail(),
-                user.getUsername(),
-                activationCode.getCode()
-        );
-        activationCodeRepository.save(activationCode);
-        sendRegistrationEmailProducer.sendRegistrationEmail(sendRegistrationCodeEmailEvent);
-        log.info("ActivationCodeServiceImpl | sendNewActivationCode | activation message has been sent to {}", user.getEmail());
-    }
+	@Transactional
+	@Override
+	public void sendNewActivationCode(User user) {
+		ActivationCode activationCode = ActivationCode.builder()
+				.user(user)
+				.code(UUID.randomUUID().toString())
+				.expirationTime(LocalDateTime.now().plusHours(2L))
+				.build();
+		SendRegistrationCodeEmailEvent sendRegistrationCodeEmailEvent = SendRegistrationEmailProducer.toSendRegistrationEmailEvent(
+				user.getEmail(),
+				user.getUsername(),
+				activationCode.getCode()
+		);
+		activationCodeRepository.save(activationCode);
+		sendRegistrationEmailProducer.sendRegistrationEmail(sendRegistrationCodeEmailEvent);
+		log.info("ActivationCodeServiceImpl | sendNewActivationCode | activation message has been sent to {}", user.getEmail());
+	}
 
-    @Override
-    public ActivationCode getActivationCode(String activationCode) {
-        return activationCodeRepository.findActivationCodeByCode(activationCode)
-                .orElseThrow(() -> new ActivationCodeNotFoundException(
-                        messageSourceService.generateMessage("error.activation_code.not_found", activationCode)
-                ));
-    }
+	@Override
+	public ActivationCode getActivationCode(String activationCode) {
+		return activationCodeRepository.findActivationCodeByCode(activationCode)
+				.orElseThrow(() -> new ActivationCodeNotFoundException(
+						messageSourceService.generateMessage("error.activation_code.not_found", activationCode)
+				));
+	}
 
-    @Override
-    @Transactional
-    public void checkActivationCodeExpiration(ActivationCode activationCode) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime expirationTime = activationCode.getExpirationTime();
-        if (now.isAfter(expirationTime)) {
-            log.info("ActivationCodeServiceImpl | checkActivationCodeExpiration | activation message {} has expired",
-                    activationCode.getCode()
-            );
-            deleteActivationCode(activationCode.getId());
-            sendNewActivationCode(activationCode.getUser());
-            throw new ActivationCodeNotFoundException(
-                    messageSourceService.generateMessage(
-                            "error.activation_code.expired",
-                            activationCode.getCode(),
-                            ChronoUnit.MINUTES.between(now, expirationTime),
-                            activationCode.getUser().getEmail(
-                            ))
-            );
-        }
+	@Override
+	@Transactional
+	public void checkActivationCodeExpiration(ActivationCode activationCode) {
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime expirationTime = activationCode.getExpirationTime();
+		if (now.isAfter(expirationTime)) {
+			log.info("ActivationCodeServiceImpl | checkActivationCodeExpiration | activation message {} has expired",
+					activationCode.getCode()
+			);
+			deleteActivationCode(activationCode.getId());
+			sendNewActivationCode(activationCode.getUser());
+			throw new ActivationCodeExpiredException(
+					messageSourceService.generateMessage(
+							"error.activation_code.expired",
+							activationCode.getCode(),
+							ChronoUnit.MINUTES.between(now, expirationTime),
+							activationCode.getUser().getEmail()
+					)
+			);
+		}
+	}
 
-    }
-
-    @Override
-    @Transactional
-    public void deleteActivationCode(Long id) {
-        activationCodeRepository.deleteById(id);
-    }
+	@Override
+	@Transactional
+	public void deleteActivationCode(Long id) {
+		activationCodeRepository.deleteById(id);
+	}
 }

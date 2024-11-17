@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -30,13 +31,10 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final ActivationCodeService activationCodeService;
 
     @Override
-    @Transactional
+    @Transactional("transactionManager")
     public ActivationCodeResponse register(RegisterRequest request) {
-        if (userService.existsByEmail(request.email())) {
-            throw new EntityExistsException(
-                    messageService.generateMessage("error.account.already_exists", request.email())
-            );
-        }
+        validateUserExists(request.email(), userService::existsByEmail, "error.account.email.already_exists");
+        validateUserExists(request.username(), userService::existsByUsername, "error.account.username.already_exists");
 
         User newUser = userService.createUser(request);
         log.info("AuthenticationServiceImpl | register | new user : {} has been created", newUser);
@@ -44,8 +42,8 @@ public class RegistrationServiceImpl implements RegistrationService {
         CreateProfileRequest createProfileRequest = new CreateProfileRequest(
                 request.username(), request.email(), LocalDate.now()
         );
-//        String profileId = profileServiceClient.createProfile(createProfileRequest);
-//        log.info("AuthenticationServiceImpl | register | new profile with id: {} has been created", profileId);
+        String profileId = profileServiceClient.createProfile(createProfileRequest);
+        log.info("AuthenticationServiceImpl | register | new profile with id: {} has been created", profileId);
 
         activationCodeService.sendNewActivationCode(newUser);
 
@@ -61,5 +59,13 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         log.info("AuthenticationServiceImpl | activate | user {} has been successfully activated", activationCodeEntity.getUser().getEmail());
         return new ActivationResponse(messageService.generateMessage("account.activation.success"));
+    }
+
+    private void validateUserExists(String value, Function<String, Boolean> existsFunction, String errorMessageKey) {
+        if (existsFunction.apply(value)) {
+            throw new EntityExistsException(
+                    messageService.generateMessage(errorMessageKey, value)
+            );
+        }
     }
 }

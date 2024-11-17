@@ -17,30 +17,35 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final Mappable<User, RegisterRequest> userMapper;
-    private final PasswordEncoder passwordEncoder;
+	private final UserRepository userRepository;
+	private final Mappable<User, RegisterRequest> userMapper;
+	private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
-    }
+	@Override
+	public boolean existsByEmail(String email) {
+		return userRepository.existsByEmail(email);
+	}
 
-    @Override
-    @Transactional
-    public User createUser(RegisterRequest request) {
-        User newUser = userMapper.toEntity(request);
-        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        Set<Role> roles = Set.of(Role.ROLE_USER);
-        newUser.setAuthorities(roles);
-        return userRepository.save(newUser);
-    }
+	@Override
+	public boolean existsByUsername(String username) {
+		return userRepository.existsByUsername(username);
+	}
 
-    @Override
-    @Transactional
-    public void enableAccount(User user) {
-        user.setEnabled(true);
-        userRepository.saveAndFlush(user);
-    }
+	@Override
+	@Transactional
+	public User createUser(RegisterRequest request) {
+		User newUser = userMapper.toEntity(request);
+		newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+		Set<Role> roles = Set.of(Role.ROLE_USER);
+		newUser.setAuthorities(roles);
+		return userRepository.save(newUser);
+	}
+
+	@Override
+	@Transactional
+	public void enableAccount(User user) {
+		user.setEnabled(true);
+		userRepository.save(user);
+	}
 
 }

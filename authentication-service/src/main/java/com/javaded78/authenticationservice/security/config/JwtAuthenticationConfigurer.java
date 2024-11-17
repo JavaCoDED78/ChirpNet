@@ -44,36 +44,40 @@ public class JwtAuthenticationConfigurer
         }
     }
 
-
     @Override
     public void configure(HttpSecurity builder) throws Exception {
-        RequestJwtTokensFilter requestJwtTokensFilter = new RequestJwtTokensFilter();
+        RequestJwtTokensFilter requestJwtTokensFilter = new RequestJwtTokensFilter(messageSourceService);
         requestJwtTokensFilter.setAccessTokenSerializer(this.accessTokenStringSerializer);
         requestJwtTokensFilter.setRefreshTokenSerializer(this.refreshTokenStringSerializer);
 
         AuthenticationFilter jwtAuthenticationFilter = new AuthenticationFilter(
                 builder.getSharedObject(AuthenticationManager.class),
-                new JwtAuthenticationConverter(this.accessTokenStringDeserializer, this.refreshTokenStringDeserializer)
+                new JwtAuthenticationConverter(
+                        this.accessTokenStringDeserializer,
+                        this.refreshTokenStringDeserializer,
+                        this.messageSourceService
+                )
         );
         jwtAuthenticationFilter
-                .setSuccessHandler((request, response, authentication) -> {
-                    CsrfFilter.skipRequest(request);
-                });
+                .setSuccessHandler((request, response, authentication) ->
+                    CsrfFilter.skipRequest(request)
+                );
         jwtAuthenticationFilter
-                .setFailureHandler((request, response, exception) -> {
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                });
+                .setFailureHandler((request, response, exception) ->
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN)
+                );
 
         PreAuthenticatedAuthenticationProvider authenticationProvider = new PreAuthenticatedAuthenticationProvider();
         authenticationProvider.setPreAuthenticatedUserDetailsService(
                 new TokenAuthenticationUserDetailsService(jdbcTemplate, messageSourceService));
 
-        RefreshTokenFilter refreshTokenFilter = new RefreshTokenFilter();
+        RefreshTokenFilter refreshTokenFilter = new RefreshTokenFilter(this.messageSourceService);
         refreshTokenFilter.setAccessTokenStringSerializer(this.accessTokenStringSerializer);
 
-        JwtLogoutFilter jwtLogoutFilter = new JwtLogoutFilter(this.jdbcTemplate);
+        JwtLogoutFilter jwtLogoutFilter = new JwtLogoutFilter(this.jdbcTemplate, this.messageSourceService);
 
-        builder.addFilterAfter(requestJwtTokensFilter, ExceptionTranslationFilter.class)
+        builder
+                .addFilterAfter(requestJwtTokensFilter, ExceptionTranslationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, CsrfFilter.class)
                 .addFilterAfter(refreshTokenFilter, ExceptionTranslationFilter.class)
                 .addFilterAfter(jwtLogoutFilter, ExceptionTranslationFilter.class)

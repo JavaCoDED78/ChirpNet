@@ -7,6 +7,7 @@ import com.javaded78.authenticationservice.security.jwt.AuthResponse;
 import com.javaded78.authenticationservice.security.jwt.Token;
 import com.javaded78.authenticationservice.security.jwt.TokenUser;
 import com.javaded78.authenticationservice.security.service.TokenSerializer;
+import com.javaded78.authenticationservice.service.MessageSourceService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,11 +27,10 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
-@NoArgsConstructor
 @Setter
 public class RefreshTokenFilter extends OncePerRequestFilter {
 
+	private final MessageSourceService messageSourceService;
 	private RequestMatcher requestMatcher = new AntPathRequestMatcher(
 			"/api/v1/auth/refresh",
 			HttpMethod.POST.name()
@@ -39,6 +39,10 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
 	private TokenFactory<Token, Token> accessTokenFactory = new DefaultAccesTokenFactory();
 	private TokenSerializer<Token, String> accessTokenStringSerializer = Object::toString;
 	private ObjectMapper objectMapper = new ObjectMapper();
+
+	public RefreshTokenFilter(MessageSourceService messageSourceService) {
+		this.messageSourceService = messageSourceService;
+	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,
@@ -62,8 +66,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
 					return;
 				}
 			}
-
-			throw new AccessDeniedException("User must be authenticated with JWT");
+			throw new AccessDeniedException(messageSourceService.generateMessage("error.user.not_authenticated_by_jwt"));
 		}
 		filterChain.doFilter(request, response);
 	}

@@ -14,6 +14,6 @@ public interface UserRegisteredMapper extends Mappable<User, RegisterRequest> {
     @Mapping(target = "isAccountNonExpired", constant = "true")
     @Mapping(target = "isAccountNonLocked", constant = "true")
     @Mapping(target = "isCredentialsNonExpired", constant = "true")
-    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
     User toEntity(RegisterRequest dto);
 }

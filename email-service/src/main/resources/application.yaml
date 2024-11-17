@@ -20,6 +20,7 @@ spring:
     consumer:
       group-id: send-email-events
       bootstrap-servers: localhost:9092,localhost:9094,localhost:9096
+      isolation-level: READ_COMMITTED
       properties:
         spring.json.trusted.packages: com.javaded78.commons.event
 mail:

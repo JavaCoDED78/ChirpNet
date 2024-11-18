@@ -17,7 +17,9 @@ public interface ProfileService {
 
 	Page<ProfileResponse> getAllByUsername(String username, Pageable pageable);
 
-	ProfileResponse updateProfile(String id, UpdateProfileRequest request, String loggedInUser);
-
 	String getProfileIdByEmail(String email);
+
+	String getProfileAvatar(String loggedInUser);
+
+	String getProfileBanner(String loggedInUser);
 }

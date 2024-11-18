@@ -1,0 +1,42 @@
+server:
+    port: 8082
+
+spring:
+    config:
+        import: optional:file:.env[.properties]
+
+    data:
+      mongodb:
+        username: ${MONGODB_USERNAME}
+        password: ${MONGODB_PASSWORD}
+        host: ${MONGODB_HOST}
+        port: 27017
+        database: profile-service
+        authenticationDatabase: admin
+        auto-index-creation: true
+
+      redis:
+        host: ${REDIS_HOST}
+        port: 6379
+        password: ${REDIS_PASSWORD}
+
+    jpa:
+      open-in-view: false
+
+    cache:
+      type: redis
+      cache-names: redis-cache
+
+    docker:
+      compose:
+        file: docker/compose.yaml
+        lifecycle-management: start_only
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: trace

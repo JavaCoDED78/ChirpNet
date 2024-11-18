@@ -2,7 +2,7 @@ package com.javaded78.authenticationservice.security.service;
 
 import com.javaded78.authenticationservice.security.jwt.Token;
 import com.javaded78.authenticationservice.security.jwt.TokenUser;
-import com.javaded78.authenticationservice.service.MessageSourceService;
+import com.javaded78.commons.util.MessageSourceService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;

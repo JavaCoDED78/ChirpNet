@@ -8,7 +8,7 @@ import com.javaded78.authenticationservice.security.jwt.Token;
 import com.javaded78.authenticationservice.security.service.TokenAuthenticationUserDetailsService;
 import com.javaded78.authenticationservice.security.service.TokenDeserializer;
 import com.javaded78.authenticationservice.security.service.TokenSerializer;
-import com.javaded78.authenticationservice.service.MessageSourceService;
+import com.javaded78.commons.util.MessageSourceService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;

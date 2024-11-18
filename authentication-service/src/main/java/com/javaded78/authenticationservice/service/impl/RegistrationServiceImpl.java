@@ -9,7 +9,7 @@ import com.javaded78.authenticationservice.model.ActivationCode;
 import com.javaded78.authenticationservice.model.User;
 import com.javaded78.authenticationservice.service.ActivationCodeService;
 import com.javaded78.authenticationservice.service.RegistrationService;
-import com.javaded78.authenticationservice.service.MessageSourceService;
+import com.javaded78.commons.util.MessageSourceService;
 import com.javaded78.authenticationservice.service.UserService;
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;

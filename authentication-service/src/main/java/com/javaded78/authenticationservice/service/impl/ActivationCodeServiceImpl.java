@@ -7,7 +7,7 @@ import com.javaded78.authenticationservice.model.User;
 import com.javaded78.authenticationservice.producer.SendRegistrationEmailProducer;
 import com.javaded78.authenticationservice.repository.ActivationCodeRepository;
 import com.javaded78.authenticationservice.service.ActivationCodeService;
-import com.javaded78.authenticationservice.service.MessageSourceService;
+import com.javaded78.commons.util.MessageSourceService;
 import com.javaded78.commons.event.SendRegistrationCodeEmailEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

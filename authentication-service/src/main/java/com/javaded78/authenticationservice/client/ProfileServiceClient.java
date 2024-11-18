@@ -18,6 +18,6 @@ public interface ProfileServiceClient {
 //    }
 
     default String fallbackMethod(Throwable throwable) {
-        return "123";
+        return "0";
     }
 }

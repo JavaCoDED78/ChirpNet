@@ -3,7 +3,6 @@ package com.javaded78.profileservice.model;
 import com.mongodb.lang.NonNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,18 +20,21 @@ import java.time.LocalDate;
 @Document(collection = "profiles")
 public class Profile implements BaseEntity<String> {
 
-    @Id
-    private String id;
+	@Id
+	private String id;
 
-    @Indexed(unique = true) private String email;
-    @NonNull private String username;
-    @NonNull private LocalDate joinDate;
+	@Indexed(unique = true)
+	private String email;
+	@NonNull
+	private String username;
+	@NonNull
+	private LocalDate joinDate;
 
-    private String bio;
-    private String location;
-    private String website;
-    private LocalDate birthDate;
+	private String bio;
+	private String location;
+	private String website;
+	private LocalDate birthDate;
 
-    private String avatarUrl;
-    private String bannerUrl;
+	private String avatarUrl;
+	private String bannerUrl;
 }

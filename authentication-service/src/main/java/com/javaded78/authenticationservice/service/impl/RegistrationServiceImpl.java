@@ -1,7 +1,7 @@
 package com.javaded78.authenticationservice.service.impl;
 
 import com.javaded78.authenticationservice.client.ProfileServiceClient;
-import com.javaded78.authenticationservice.dto.request.CreateProfileRequest;
+import com.javaded78.authenticationservice.dto.response.CreateProfileRequest;
 import com.javaded78.authenticationservice.dto.request.RegisterRequest;
 import com.javaded78.authenticationservice.dto.response.ActivationCodeResponse;
 import com.javaded78.authenticationservice.dto.response.ActivationResponse;

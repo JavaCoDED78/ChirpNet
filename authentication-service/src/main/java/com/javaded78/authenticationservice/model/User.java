@@ -37,9 +37,6 @@ public class User implements BaseEntity<Long> {
     @Column(name = "c_password", nullable = false)
     private String password;
 
-    @Column(name = "c_username", unique = true, nullable = false)
-    private String username;
-
     @Column(name = "c_authority")
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "t_user_authority", joinColumns = @JoinColumn(name = "id_user"))

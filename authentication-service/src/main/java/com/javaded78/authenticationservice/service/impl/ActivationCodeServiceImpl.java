@@ -37,7 +37,6 @@ public class ActivationCodeServiceImpl implements ActivationCodeService {
 				.build();
 		SendRegistrationCodeEmailEvent sendRegistrationCodeEmailEvent = SendRegistrationEmailProducer.toSendRegistrationEmailEvent(
 				user.getEmail(),
-				user.getUsername(),
 				activationCode.getCode()
 		);
 		activationCodeRepository.save(activationCode);

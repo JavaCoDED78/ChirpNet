@@ -7,8 +7,6 @@ public interface UserService {
 
     boolean existsByEmail(String email);
 
-    boolean existsByUsername(String username);
-
     User createUser(RegisterRequest request);
 
     void enableAccount(User user);

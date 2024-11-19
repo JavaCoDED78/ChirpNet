@@ -34,8 +34,6 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Transactional("transactionManager")
     public ActivationCodeResponse register(RegisterRequest request) {
         validateUserExists(request.email(), userService::existsByEmail, "error.account.email.already_exists");
-        validateUserExists(request.username(), userService::existsByUsername, "error.account.username.already_exists");
-
         User newUser = userService.createUser(request);
         log.info("AuthenticationServiceImpl | register | new user : {} has been created", newUser);
 

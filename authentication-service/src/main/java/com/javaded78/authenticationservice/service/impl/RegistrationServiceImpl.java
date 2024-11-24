@@ -35,7 +35,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     public ActivationCodeResponse register(RegisterRequest request) {
         validateUserExists(request.email(), userService::existsByEmail, "error.account.email.already_exists");
         User newUser = userService.createUser(request);
-        log.info("AuthenticationServiceImpl | register | new user : {} has been created", newUser);
+        log.info("AuthenticationServiceImpl | register | new user : {} has been created", newUser.getEmail());
 
         CreateProfileRequest createProfileRequest = new CreateProfileRequest(
                 request.username(), request.email(), LocalDate.now()

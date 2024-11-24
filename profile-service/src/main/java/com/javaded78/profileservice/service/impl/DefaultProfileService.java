@@ -8,27 +8,29 @@ import com.javaded78.profileservice.exception.EntityNotFoundException;
 import com.javaded78.profileservice.mapper.ProfileMapper;
 import com.javaded78.profileservice.model.Profile;
 import com.javaded78.profileservice.repository.ProfileRepository;
-import com.javaded78.profileservice.service.FollowService;
 import com.javaded78.profileservice.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DefaultProfileService implements ProfileService {
 
 	private final ProfileRepository profileRepository;
 	private final ProfileMapper profileMapper;
 	private final MessageSourceService messageSourceService;
-	private final FollowService followService;
 
 	@Override
+	@Transactional
 	public String createProfile(CreateProfileRequest request) {
 		return Optional.of(request)
 				.map(profileMapper::toEntity)
@@ -40,33 +42,19 @@ public class DefaultProfileService implements ProfileService {
 	}
 
 	@Override
-	public ProfileResponse getProfile(String id) {
-		return getProfileBy(
-				() -> profileRepository.findById(id),
-				id
-		);
+	public ProfileResponse getProfileResponse(String id) {
+		return profileMapper.toProfileResponse(getProfileById(id));
 	}
 
 	@Override
-	public ProfileResponse getAuthProfile(String loggedInUser) {
-		return getProfileBy(
-				() -> profileRepository.findByEmail(loggedInUser),
-				loggedInUser
-		);
-	}
-
-	private ProfileResponse getProfileBy(Supplier<Optional<Profile>> profileSupplier, String identifier) {
-		return profileSupplier.get()
-				.map(profile -> profileMapper.toProfileResponse(profile, followService))
-				.orElseThrow(() -> new EntityNotFoundException(
-						messageSourceService.generateMessage("error.entity.not_found", identifier)
-				));
+	public ProfileResponse getAuthProfileResponse(String loggedInUser) {
+		return profileMapper.toProfileResponse(getProfileByEmail(loggedInUser));
 	}
 
 	@Override
 	public Page<ProfileResponse> getAllByUsername(String username, Pageable pageable) {
 		return profileRepository.findByUsernameContaining(username, pageable)
-				.map(profile -> profileMapper.toProfileResponse(profile, followService));
+				.map(profileMapper::toProfileResponse);
 	}
 
 	@Override
@@ -93,6 +81,29 @@ public class DefaultProfileService implements ProfileService {
 				.map(function)
 				.orElseThrow(() -> new EntityNotFoundException(
 						messageSourceService.generateMessage("error.image.not_found", email)
+				));
+	}
+
+	@Override
+	public Profile getProfileById(String id) {
+		return getProfile(() -> profileRepository.findById(id), id);
+	}
+
+	@Override
+	public Profile getProfileByEmail(String email) {
+		return getProfile(() -> profileRepository.findByEmail(email), email);
+	}
+
+	@Override
+	@Transactional
+	public void saveAll(Profile... profiles) {
+		profileRepository.saveAll(List.of(profiles));
+	}
+
+	private Profile getProfile(Supplier<Optional<Profile>> profileSupplier, String identifier) {
+		return profileSupplier.get()
+				.orElseThrow(() -> new EntityNotFoundException(
+						messageSourceService.generateMessage("error.entity.not_found", identifier)
 				));
 	}
 }

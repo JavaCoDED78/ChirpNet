@@ -9,10 +9,10 @@ import com.javaded78.profileservice.exception.EntityNotFoundException;
 import com.javaded78.profileservice.mapper.ProfileMapper;
 import com.javaded78.profileservice.model.Profile;
 import com.javaded78.profileservice.repository.ProfileRepository;
-import com.javaded78.profileservice.service.FollowService;
 import com.javaded78.profileservice.service.ProfileSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.function.BiConsumer;
@@ -20,21 +20,22 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class DefaultProfileSettingService implements ProfileSettingService {
 
 	private final ProfileRepository profileRepository;
 	private final ProfileMapper profileMapper;
 	private final MessageSourceServiceImpl messageSourceService;
-	private final FollowService followService;
 	private final StorageServiceClient storageServiceClient;
 
 	@Override
+	@Transactional
 	public ProfileResponse updateProfile(String id, UpdateProfileRequest request, String loggedInUser) {
 		return profileRepository.findById(id)
 				.filter(profile -> isUpdateAvailability(profile.getEmail(), loggedInUser))
 				.map(profile -> profileMapper.fromUpdateProfileRequest(request, profile))
 				.map(profileRepository::save)
-				.map(profile -> profileMapper.toProfileResponse(profile, followService))
+				.map(profileMapper::toProfileResponse)
 				.orElseThrow(() -> new EntityNotFoundException(
 						messageSourceService.generateMessage("error.entity.not_found", id)
 				));
@@ -77,8 +78,7 @@ public class DefaultProfileSettingService implements ProfileSettingService {
 					String existingUrl = getUrl.apply(profile);
 					setUrl.accept(profile, null);
 					profileRepository.save(profile);
-					storageServiceClient.deleteImage(existingUrl);
-					return true;
+					return storageServiceClient.deleteImage(existingUrl);
 				})
 				.orElse(false);
 	}
@@ -92,21 +92,25 @@ public class DefaultProfileSettingService implements ProfileSettingService {
 	}
 
 	@Override
+	@Transactional
 	public Boolean uploadAvatarImage(MultipartFile file, String loggedInUser) {
 		return uploadImage(file, loggedInUser, Profile::getAvatarUrl, Profile::setAvatarUrl);
 	}
 
 	@Override
+	@Transactional
 	public Boolean deleteAvatarImage(String loggedInUser) {
 		return deleteImage(loggedInUser, Profile::getAvatarUrl, Profile::setAvatarUrl);
 	}
 
 	@Override
+	@Transactional
 	public Boolean uploadBannerImage(MultipartFile file, String loggedInUser) {
 		return uploadImage(file, loggedInUser, Profile::getBannerUrl, Profile::setBannerUrl);
 	}
 
 	@Override
+	@Transactional
 	public Boolean deleteBannerImage(String loggedInUser) {
 		return deleteImage(loggedInUser, Profile::getBannerUrl, Profile::setBannerUrl);
 	}

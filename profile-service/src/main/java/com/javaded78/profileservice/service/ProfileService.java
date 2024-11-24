@@ -1,9 +1,8 @@
 package com.javaded78.profileservice.service;
 
 import com.javaded78.profileservice.dto.request.CreateProfileRequest;
-import com.javaded78.profileservice.dto.request.UpdateProfileRequest;
 import com.javaded78.profileservice.dto.response.ProfileResponse;
-import jakarta.validation.Valid;
+import com.javaded78.profileservice.model.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -11,9 +10,9 @@ public interface ProfileService {
 
 	String createProfile(CreateProfileRequest request);
 
-	ProfileResponse getProfile(String id);
+	ProfileResponse getProfileResponse(String id);
 
-	ProfileResponse getAuthProfile(String loggedInUser);
+	ProfileResponse getAuthProfileResponse(String loggedInUser);
 
 	Page<ProfileResponse> getAllByUsername(String username, Pageable pageable);
 
@@ -22,4 +21,10 @@ public interface ProfileService {
 	String getProfileAvatar(String loggedInUser);
 
 	String getProfileBanner(String loggedInUser);
+
+	Profile getProfileById(String id);
+
+	Profile getProfileByEmail(String email);
+
+	void saveAll(Profile... profiles);
 }

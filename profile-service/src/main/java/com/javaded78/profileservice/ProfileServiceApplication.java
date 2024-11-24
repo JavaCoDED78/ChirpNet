@@ -7,7 +7,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication(scanBasePackages = "com.javaded78.profileservice, com.javaded78.commons")
 @EnableFeignClients
-@EnableCaching
 public class ProfileServiceApplication {
 
 	public static void main(String[] args) {

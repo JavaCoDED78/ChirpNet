@@ -1,5 +1,6 @@
 package com.javaded78.profileservice.client;
 
+import com.javaded78.profileservice.config.FeignConfig;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.core.io.ByteArrayResource;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-@FeignClient(name = "storage-service", url = "http://localhost:8083")
+@FeignClient(name = "storage-service", url = "http://localhost:8083", configuration = FeignConfig.class)
 public interface StorageServiceClient {
 
 	@PostMapping(value = "/api/v1/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -26,15 +27,15 @@ public interface StorageServiceClient {
 	@CircuitBreaker(name = "storage-service", fallbackMethod = "fallbackDeleteImage")
 	Boolean deleteImage(@RequestParam String url);
 
-	default String fallbackUploadImage(MultipartFile image) {
+	default String fallbackUploadImage(MultipartFile image, Throwable throwable) {
 		return "";
 	}
 
-	default ByteArrayResource fallbackDownloadImage(String url) {
+	default ByteArrayResource fallbackDownloadImage(String url, Throwable throwable) {
 		return new ByteArrayResource(new byte[0]);
 	}
 
-	default Boolean fallbackDeleteImage(String url) {
-		return false;
+	default Boolean fallbackDeleteImage(String url, Throwable throwable) {
+		return true;
 	}
 }

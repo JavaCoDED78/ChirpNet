@@ -56,23 +56,14 @@ public class FollowController {
 		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping("{profileId}/followings")
-	public ResponseEntity<PaginationResponse<ProfileResponse>> getFollowings(
+	@GetMapping("{profileId}/followings-celebrity/{minFollowerCount}")
+	public ResponseEntity<PaginationResponse<ProfileResponse>> getFollowingsCelebrity(
 			@PathVariable String profileId,
+			@PathVariable int minFollowerCount,
 			Pageable pageable
 	) {
 		PaginationResponse<ProfileResponse> response = PaginationResponse
-				.of(followService.getFollowings(profileId, pageable));
-		return ResponseEntity.ok(response);
-	}
-
-	@GetMapping("{profileId}/followings-celebrity")
-	public ResponseEntity<PaginationResponse<ProfileResponse>> getFollowings(
-			@PathVariable String profileId,
-			Pageable pageable
-	) {
-		PaginationResponse<ProfileResponse> response = PaginationResponse
-				.of(followService.getFollowingsSelebrity(profileId, pageable));
+				.of(followService.getFollowingsCelebrity(profileId, minFollowerCount, pageable));
 		return ResponseEntity.ok(response);
 	}
 }

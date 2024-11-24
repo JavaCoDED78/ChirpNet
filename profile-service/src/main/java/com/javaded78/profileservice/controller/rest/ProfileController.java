@@ -22,12 +22,12 @@ public class ProfileController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<ProfileResponse> getProfile(@PathVariable String id) {
-		return ResponseEntity.ok(profileService.getProfile(id));
+		return ResponseEntity.ok(profileService.getProfileResponse(id));
 	}
 
 	@GetMapping("/me")
 	public ResponseEntity<ProfileResponse> getAuthProfile(@RequestHeader String loggedInUser) {
-		return ResponseEntity.ok(profileService.getAuthProfile(loggedInUser));
+		return ResponseEntity.ok(profileService.getAuthProfileResponse(loggedInUser));
 	}
 
 	@GetMapping()

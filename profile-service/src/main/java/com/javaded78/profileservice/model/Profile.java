@@ -1,6 +1,7 @@
 package com.javaded78.profileservice.model;
 
 import com.mongodb.lang.NonNull;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,7 +35,32 @@ public class Profile implements BaseEntity<String> {
 	private String location;
 	private String website;
 	private LocalDate birthDate;
-
 	private String avatarUrl;
 	private String bannerUrl;
+
+	@Setter(AccessLevel.NONE)
+	private int followerCount;
+
+	@Setter(AccessLevel.NONE)
+	private int followingCount;
+
+	public void setFollowerCount() {
+		this.followerCount ++;
+	}
+
+	public void setFollowingCount() {
+		this.followingCount ++;
+	}
+
+	public void unSetFollowerCount() {
+		if (this.followerCount > 0) {
+			this.followerCount --;
+		}
+	}
+
+	public void unSetFollowingCount() {
+		if (this.followingCount > 0) {
+			this.followingCount --;
+		}
+	}
 }

@@ -32,8 +32,18 @@ spring:
         file: docker/compose.yaml
         lifecycle-management: start_only
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      storage-service:
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        sliding-window-size: 10
+        wait-duration-in-open-state: 3s
+
 logging:
   level:
+    io.github.resilience4j.circuitbreaker: trace
     org:
       springframework:
         data:

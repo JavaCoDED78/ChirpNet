@@ -2,7 +2,6 @@ package com.javaded78.profileservice.controller.rest;
 
 import com.javaded78.profileservice.dto.request.UpdateProfileRequest;
 import com.javaded78.profileservice.dto.response.ProfileResponse;
-import com.javaded78.profileservice.service.ProfileService;
 import com.javaded78.profileservice.service.ProfileSettingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

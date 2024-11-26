@@ -10,7 +10,7 @@ public interface ProfileService {
 
 	String createProfile(CreateProfileRequest request);
 
-	ProfileResponse getProfileResponse(String id);
+	ProfileResponse getProfileResponseById(String id);
 
 	ProfileResponse getAuthProfileResponse(String loggedInUser);
 
@@ -25,6 +25,8 @@ public interface ProfileService {
 	Profile getProfileById(String id);
 
 	Profile getProfileByEmail(String email);
+
+	Profile save(Profile profile);
 
 	void saveAll(Profile... profiles);
 }

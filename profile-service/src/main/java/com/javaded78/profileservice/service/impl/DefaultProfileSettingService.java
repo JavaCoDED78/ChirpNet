@@ -8,13 +8,18 @@ import com.javaded78.profileservice.exception.ActionNotAllowedException;
 import com.javaded78.profileservice.exception.EntityNotFoundException;
 import com.javaded78.profileservice.mapper.ProfileMapper;
 import com.javaded78.profileservice.model.Profile;
-import com.javaded78.profileservice.repository.ProfileRepository;
+import com.javaded78.profileservice.service.ProfileService;
 import com.javaded78.profileservice.service.ProfileSettingService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -23,7 +28,7 @@ import java.util.function.Function;
 @Transactional(readOnly = true)
 public class DefaultProfileSettingService implements ProfileSettingService {
 
-	private final ProfileRepository profileRepository;
+	private final ProfileService profileService;
 	private final ProfileMapper profileMapper;
 	private final MessageSourceServiceImpl messageSourceService;
 	private final StorageServiceClient storageServiceClient;
@@ -31,10 +36,10 @@ public class DefaultProfileSettingService implements ProfileSettingService {
 	@Override
 	@Transactional
 	public ProfileResponse updateProfile(String id, UpdateProfileRequest request, String loggedInUser) {
-		return profileRepository.findById(id)
+		return Optional.of(profileService.getProfileById(id))
 				.filter(profile -> isUpdateAvailability(profile.getEmail(), loggedInUser))
 				.map(profile -> profileMapper.fromUpdateProfileRequest(request, profile))
-				.map(profileRepository::save)
+				.map(profileService::save)
 				.map(profileMapper::toProfileResponse)
 				.orElseThrow(() -> new EntityNotFoundException(
 						messageSourceService.generateMessage("error.entity.not_found", id)
@@ -55,37 +60,36 @@ public class DefaultProfileSettingService implements ProfileSettingService {
 	                            Function<Profile, String> getUrl,
 	                            BiConsumer<Profile, String> setUrl
 	) {
-		return profileRepository.findByEmail(loggedInUser)
+		return Optional.of(profileService.getProfileByEmail(loggedInUser))
 				.map(profile -> {
 					deleteExistingImage(profile, getUrl);
 					String url = storageServiceClient.uploadImage(file);
 					setUrl.accept(profile, url);
-					profileRepository.save(profile);
+					profileService.save(profile);
 					return url != null;
 				})
 				.orElse(false);
 	}
 
 	private Boolean deleteImage(String loggedInUser,
-	                            Function<Profile, String> getUrl,
-	                            BiConsumer<Profile, String> setUrl) {
-		return profileRepository.findByEmail(loggedInUser)
+	                            Function<Profile, String> getImageUrl,
+	                            BiConsumer<Profile, String> setImageUrl) {
+		return Optional.of(profileService.getProfileByEmail(loggedInUser))
 				.filter(profile -> {
-					String existingUrl = getUrl.apply(profile);
+					String existingUrl = getImageUrl.apply(profile);
 					return existingUrl != null;
 				})
 				.map(profile -> {
-					String existingUrl = getUrl.apply(profile);
-					setUrl.accept(profile, null);
-					profileRepository.save(profile);
+					String existingUrl = getImageUrl.apply(profile);
+					setImageUrl.accept(profile, null);
+					profileService.save(profile);
 					return storageServiceClient.deleteImage(existingUrl);
 				})
 				.orElse(false);
 	}
 
-
-	private void deleteExistingImage(Profile profile, Function<Profile, String> getUrl) {
-		String existingUrl = getUrl.apply(profile);
+	private void deleteExistingImage(Profile profile, Function<Profile, String> getImageUrl) {
+		String existingUrl = getImageUrl.apply(profile);
 		if (existingUrl != null) {
 			storageServiceClient.deleteImage(existingUrl);
 		}
@@ -111,6 +115,7 @@ public class DefaultProfileSettingService implements ProfileSettingService {
 
 	@Override
 	@Transactional
+	@CacheEvict(value = "ProfileService::getProfileBanner", key = "#loggedInUser")
 	public Boolean deleteBannerImage(String loggedInUser) {
 		return deleteImage(loggedInUser, Profile::getBannerUrl, Profile::setBannerUrl);
 	}

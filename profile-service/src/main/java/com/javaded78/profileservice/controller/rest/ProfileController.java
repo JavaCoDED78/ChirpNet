@@ -22,7 +22,7 @@ public class ProfileController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<ProfileResponse> getProfile(@PathVariable String id) {
-		return ResponseEntity.ok(profileService.getProfileResponse(id));
+		return ResponseEntity.ok(profileService.getProfileResponseById(id));
 	}
 
 	@GetMapping("/me")

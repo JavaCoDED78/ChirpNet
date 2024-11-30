@@ -1,37 +1,34 @@
 server:
-    port: 8082
+  port: 8082
 
 spring:
-    config:
-        import: optional:file:.env[.properties]
+  config:
+    import: optional:file:.env[.properties]
 
-    data:
-      mongodb:
-        username: ${MONGODB_USERNAME}
-        password: ${MONGODB_PASSWORD}
-        host: ${MONGODB_HOST}
-        port: 27017
-        database: profile-service
-        authenticationDatabase: admin
-        auto-index-creation: true
+  data:
+    mongodb:
+      uri: mongodb://profile:profile@localhost:27017/profile-service?readPreference=secondaryPreferred
 
-      redis:
-        host: ${REDIS_HOST}
-        port: 6379
-        password: redis
+      username: profile
+      password: profile
+      host: localhost
+      port: 27017
+      database: profile-service
+      authenticationDatabase: profile-service
+      auto-index-creation: true
 
 
-    jpa:
-      open-in-view: false
+    redis:
+      host: localhost
+      port: 6379
+      password: redis
 
-    cache:
-      type: redis
-      cache-names: redis-cache
+  jpa:
+    open-in-view: false
 
-    docker:
-      compose:
-        file: docker/compose.yaml
-        lifecycle-management: start_only
+  cache:
+    type: redis
+    cache-names: redis-cache
 
 resilience4j:
   circuitbreaker:
@@ -45,9 +42,5 @@ resilience4j:
 logging:
   level:
     io.github.resilience4j.circuitbreaker: trace
-    org:
-      springframework:
-        data:
-          mongodb:
-            core:
-              MongoTemplate: trace
+    org.springframework.data.mongodb: trace
+    org.springframework.data.redis: trace

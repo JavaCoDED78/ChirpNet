@@ -1,6 +1,5 @@
 package com.javaded78.profileservice.repository;
 
-import com.javaded78.profileservice.dto.response.ProfileResponse;
 import com.javaded78.profileservice.model.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -7,8 +7,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/authentication-service
-    username: ${POSTGRES_USERNAME}
-    password: ${POSTGRES_PASSWORD}
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
 
   liquibase:
@@ -21,11 +21,6 @@ spring:
       hibernate:
         format_sql: true
     open-in-view: false
-
-  docker:
-    compose:
-      file: docker/compose.yaml
-      lifecycle-management: start_only
 
   kafka:
     producer:

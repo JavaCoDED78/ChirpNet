@@ -8,7 +8,6 @@ spring:
   data:
     mongodb:
       uri: mongodb://profile:profile@localhost:27017/profile-service?readPreference=secondaryPreferred
-
       username: profile
       password: profile
       host: localhost
@@ -16,7 +15,6 @@ spring:
       database: profile-service
       authenticationDatabase: profile-service
       auto-index-creation: true
-
 
     redis:
       host: localhost

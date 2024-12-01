@@ -1,6 +1,11 @@
+version: '3.9'
+
+name: chirpnet
+
 networks:
   mongo-cluster:
     driver: bridge
+
 volumes:
   mongo-profile-1-data:
   mongo-profile-2-data:
@@ -26,7 +31,6 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
-
 
   kafka-1:
     image: 'bitnami/kafka:latest'
@@ -132,6 +136,7 @@ services:
       MONGO_INITDB_DATABASE: profile-service
       DB_USERNAME: profile
       DB_PASSWORD: profile
+
   mongo-profile-2:
     container_name: mongo_profile_rs1
     image: 'mongo:jammy'
@@ -156,6 +161,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ADMIN_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ADMIN_PASSWD}
+
   mongo-profile-3:
     container_name: mongo_profile_rs2
     image: 'mongo:jammy'
@@ -185,14 +191,14 @@ services:
     container_name: mongo-express
     image: 'mongo-express:latest'
     ports:
-      - '8081:8081'
+      - '8091:8081'
     networks:
       - mongo-cluster
     environment:
       ME_CONFIG_BASICAUTH: false
       ME_CONFIG_MONGODB_ENABLE_ADMIN: false
-      ME_CONFIG_MONGODB_ADMINUSERNAME: '${MONGO_ADMIN_USER}'
-      ME_CONFIG_MONGODB_ADMINPASSWORD: '${MONGO_ADMIN_PASSWD}'
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ADMIN_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ADMIN_PASSWD}
       ME_CONFIG_MONGODB_URL: >-
         mongodb://profile:profile@mongo1:27017,mongo2:27018,mongo3:27019/profile-service?replicaSet=rs0
     depends_on:

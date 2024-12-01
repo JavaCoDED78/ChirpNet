@@ -4,6 +4,7 @@ import com.javaded78.commons.util.MessageSourceService;
 import com.javaded78.profileservice.cache.constant.CacheConstant;
 import com.javaded78.profileservice.dto.request.CreateProfileRequest;
 import com.javaded78.profileservice.dto.response.ProfileResponse;
+import com.javaded78.profileservice.exception.ActionNotAllowedException;
 import com.javaded78.profileservice.exception.CreateEntityException;
 import com.javaded78.profileservice.exception.EntityNotFoundException;
 import com.javaded78.profileservice.mapper.ProfileMapper;
@@ -15,7 +16,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,6 @@ import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class DefaultProfileService implements ProfileService {
 
 	private final ProfileRepository profileRepository;
@@ -32,7 +31,6 @@ public class DefaultProfileService implements ProfileService {
 	private final MessageSourceService messageSourceService;
 
 	@Override
-	@Transactional
 	public String createProfile(CreateProfileRequest request) {
 		return Optional.of(request)
 				.map(profileMapper::toEntity)
@@ -52,7 +50,13 @@ public class DefaultProfileService implements ProfileService {
 	@Override
 	@Cacheable(value = CacheConstant.GET_PROFILE_RESPONSE_BY_EMAIL, key = "#loggedInUser")
 	public ProfileResponse getAuthProfileResponse(String loggedInUser) {
-		return profileMapper.toProfileResponse(getProfileByEmail(loggedInUser));
+		try {
+			return profileMapper.toProfileResponse(getProfileByEmail(loggedInUser));
+		} catch (EntityNotFoundException e) {
+			throw new ActionNotAllowedException(
+					messageSourceService.generateMessage("error.forbidden")
+			);
+		}
 	}
 
 	@Override
@@ -98,7 +102,6 @@ public class DefaultProfileService implements ProfileService {
 	}
 
 	@Override
-	@Transactional
 	public Profile save(Profile profile) {
 		return profileRepository.save(profile);
 	}

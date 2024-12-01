@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import java.time.Duration;
 
 @Configuration
-@EnableTransactionManagement
 @RequiredArgsConstructor
 public class RedisConfig {
 
@@ -46,11 +45,6 @@ public class RedisConfig {
 		template.afterPropertiesSet();
 		return template;
 	}
-
-//	@Bean
-//	public PlatformTransactionManager transactionManager() {
-//		return new MongoTransactionManager();
-//	}
 
 	@Bean
 	public RedisCacheConfiguration cacheConfiguration() {

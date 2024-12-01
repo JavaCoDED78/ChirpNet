@@ -13,10 +13,7 @@ import com.javaded78.profileservice.service.ProfileSettingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
@@ -25,7 +22,6 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class DefaultProfileSettingService implements ProfileSettingService {
 
 	private final ProfileService profileService;
@@ -34,7 +30,6 @@ public class DefaultProfileSettingService implements ProfileSettingService {
 	private final StorageServiceClient storageServiceClient;
 
 	@Override
-	@Transactional
 	public ProfileResponse updateProfile(String id, UpdateProfileRequest request, String loggedInUser) {
 		return Optional.of(profileService.getProfileById(id))
 				.filter(profile -> isUpdateAvailability(profile.getEmail(), loggedInUser))
@@ -96,25 +91,24 @@ public class DefaultProfileSettingService implements ProfileSettingService {
 	}
 
 	@Override
-	@Transactional
+	@CachePut(value = "ProfileService::getProfileAvatar", key = "#loggedInUser")
 	public Boolean uploadAvatarImage(MultipartFile file, String loggedInUser) {
 		return uploadImage(file, loggedInUser, Profile::getAvatarUrl, Profile::setAvatarUrl);
 	}
 
 	@Override
-	@Transactional
+	@CacheEvict(value = "ProfileService::getProfileAvatar", key = "#loggedInUser")
 	public Boolean deleteAvatarImage(String loggedInUser) {
 		return deleteImage(loggedInUser, Profile::getAvatarUrl, Profile::setAvatarUrl);
 	}
 
 	@Override
-	@Transactional
+	@CachePut(value = "ProfileService::getProfileBanner", key = "#loggedInUser")
 	public Boolean uploadBannerImage(MultipartFile file, String loggedInUser) {
 		return uploadImage(file, loggedInUser, Profile::getBannerUrl, Profile::setBannerUrl);
 	}
 
 	@Override
-	@Transactional
 	@CacheEvict(value = "ProfileService::getProfileBanner", key = "#loggedInUser")
 	public Boolean deleteBannerImage(String loggedInUser) {
 		return deleteImage(loggedInUser, Profile::getBannerUrl, Profile::setBannerUrl);

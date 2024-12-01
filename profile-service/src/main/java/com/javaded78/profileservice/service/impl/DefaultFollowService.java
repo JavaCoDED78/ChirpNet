@@ -1,6 +1,9 @@
 package com.javaded78.profileservice.service.impl;
 
+import com.javaded78.commons.util.MessageSourceService;
 import com.javaded78.profileservice.dto.response.ProfileResponse;
+import com.javaded78.profileservice.exception.ActionNotAllowedException;
+import com.javaded78.profileservice.exception.EntityNotFoundException;
 import com.javaded78.profileservice.mapper.ProfileMapper;
 import com.javaded78.profileservice.model.Follow;
 import com.javaded78.profileservice.model.Profile;
@@ -12,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,21 +23,27 @@ import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class DefaultFollowService implements FollowService {
 
 	private final FollowRepository followRepository;
 	private final ProfileService profileService;
 	private final ProfileMapper profileMapper;
+	private final MessageSourceService messageSourceService;
 
 	@Override
 	public Boolean isFollowing(String followingId, String loggedInUser) {
-		Profile profile = profileService.getProfileByEmail(loggedInUser);
-		return followRepository.doesFollowRelationshipExist(profile.getId(), followingId);
+		try {
+			Profile profile = profileService.getProfileByEmail(loggedInUser);
+			return followRepository.doesFollowRelationshipExist(profile.getId(), followingId);
+		} catch (EntityNotFoundException e) {
+			throw new ActionNotAllowedException(
+					messageSourceService.generateMessage("error.forbidden")
+			);
+		}
+
 	}
 
 	@Override
-	@Transactional
 	public Boolean follow(String followingId, String loggedInUser) {
 		Profile profile = profileService.getProfileByEmail(loggedInUser);
 		if (!isFollowing(followingId, loggedInUser)) {
@@ -47,7 +55,6 @@ public class DefaultFollowService implements FollowService {
 	}
 
 	@Override
-	@Transactional
 	public Boolean unfollow(String followingId, String loggedInUser) {
 		if (!isFollowing(followingId, loggedInUser)) {
 			return false;

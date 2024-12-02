@@ -1,6 +1,7 @@
 package com.javaded78.profileservice.service.impl;
 
 import com.javaded78.commons.util.MessageSourceServiceImpl;
+import com.javaded78.profileservice.cache.constant.CacheConstant;
 import com.javaded78.profileservice.client.StorageServiceClient;
 import com.javaded78.profileservice.dto.request.UpdateProfileRequest;
 import com.javaded78.profileservice.dto.response.ProfileResponse;
@@ -91,25 +92,25 @@ public class DefaultProfileSettingService implements ProfileSettingService {
 	}
 
 	@Override
-	@CachePut(value = "ProfileService::getProfileAvatar", key = "#loggedInUser")
+	@CachePut(value = CacheConstant.GET_PROFILE_AVATAR_BY_EMAIL, key = "#loggedInUser")
 	public Boolean uploadAvatarImage(MultipartFile file, String loggedInUser) {
 		return uploadImage(file, loggedInUser, Profile::getAvatarUrl, Profile::setAvatarUrl);
 	}
 
 	@Override
-	@CacheEvict(value = "ProfileService::getProfileAvatar", key = "#loggedInUser")
+	@CacheEvict(value = CacheConstant.GET_PROFILE_AVATAR_BY_EMAIL, key = "#loggedInUser")
 	public Boolean deleteAvatarImage(String loggedInUser) {
 		return deleteImage(loggedInUser, Profile::getAvatarUrl, Profile::setAvatarUrl);
 	}
 
 	@Override
-	@CachePut(value = "ProfileService::getProfileBanner", key = "#loggedInUser")
+	@CachePut(value = CacheConstant.GET_PROFILE_BANNER_BY_EMAIL, key = "#loggedInUser")
 	public Boolean uploadBannerImage(MultipartFile file, String loggedInUser) {
 		return uploadImage(file, loggedInUser, Profile::getBannerUrl, Profile::setBannerUrl);
 	}
 
 	@Override
-	@CacheEvict(value = "ProfileService::getProfileBanner", key = "#loggedInUser")
+	@CacheEvict(value = CacheConstant.GET_PROFILE_BANNER_BY_EMAIL, key = "#loggedInUser")
 	public Boolean deleteBannerImage(String loggedInUser) {
 		return deleteImage(loggedInUser, Profile::getBannerUrl, Profile::setBannerUrl);
 	}

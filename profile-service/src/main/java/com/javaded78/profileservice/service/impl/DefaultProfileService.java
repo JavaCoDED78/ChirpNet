@@ -72,13 +72,13 @@ public class DefaultProfileService implements ProfileService {
 	}
 
 	@Override
-	@Cacheable(value = "ProfileService::getProfileAvatar", key = "#loggedInUser")
+	@Cacheable(value = CacheConstant.GET_PROFILE_AVATAR_BY_EMAIL, key = "#loggedInUser")
 	public String getProfileAvatar(String loggedInUser) {
 		return getProfileImage(Profile::getAvatarUrl, loggedInUser);
 	}
 
 	@Override
-	@Cacheable(value = "ProfileService::getProfileBanner", key = "#loggedInUser")
+	@Cacheable(value = CacheConstant.GET_PROFILE_BANNER_BY_EMAIL, key = "#loggedInUser")
 	public String getProfileBanner(String loggedInUser) {
 		return getProfileImage(Profile::getBannerUrl, loggedInUser);
 	}

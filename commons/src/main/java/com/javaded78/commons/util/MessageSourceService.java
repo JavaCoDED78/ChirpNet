@@ -1,4 +1,4 @@
-package com.javaded78.authenticationservice.service;
+package com.javaded78.commons.util;
 
 public interface MessageSourceService {
 

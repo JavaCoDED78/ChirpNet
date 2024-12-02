@@ -7,8 +7,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://localhost:5432/authentication-service
-    username: ${POSTGRES_USERNAME}
-    password: ${POSTGRES_PASSWORD}
+    username: postgres
+    password: postgres
     driver-class-name: org.postgresql.Driver
 
   liquibase:
@@ -21,11 +21,6 @@ spring:
       hibernate:
         format_sql: true
     open-in-view: false
-
-  docker:
-    compose:
-      file: authentication-service/docker/compose.yaml
-      lifecycle-management: start_only
 
   kafka:
     producer:
@@ -46,18 +41,19 @@ jwt:
   access-token-key: '{"kty":"oct","k":"hi7S5RX5ZRZooHA0RKGctZ-KtR9FoESgCnH-3BNg5XI"}'
   refresh-token-key: '{"kty":"oct","k":"956PBFst1FguLr5irJD-aQ"}'
 
-feign:
-  circuitbreaker:
-    enabled: true
-
 resilience4j:
   circuitbreaker:
     instances:
       profile-service:
-        miimum-number-of-calls: 5
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        sliding-window-size: 10
+        wait-duration-in-open-state: 3s
+
 
 logging:
   level:
+    io.github.resilience4j.circuitbreaker: trace
     org.springframework.security: trace
     org.springframework.kafka.transaction.KafkaAwareTransactionManager: trace
     org.springframework.transaction: trace

@@ -1,6 +1,6 @@
 package com.javaded78.authenticationservice.exception;
 
-import com.javaded78.authenticationservice.service.MessageSourceService;
+import com.javaded78.commons.util.MessageSourceService;
 import com.nimbusds.jwt.proc.BadJWTException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;

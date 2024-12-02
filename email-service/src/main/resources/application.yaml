@@ -23,5 +23,6 @@ spring:
       isolation-level: READ_COMMITTED
       properties:
         spring.json.trusted.packages: com.javaded78.commons.event
+
 mail:
   debug: false

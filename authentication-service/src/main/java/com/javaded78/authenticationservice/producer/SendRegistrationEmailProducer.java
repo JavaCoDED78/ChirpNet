@@ -19,13 +19,13 @@ public class SendRegistrationEmailProducer {
         kafkaTemplate.send(SEND_EMAIL_TOPIC, sendRegistrationCodeEmailEvent);
     }
 
-    public static SendRegistrationCodeEmailEvent toSendRegistrationEmailEvent(String toEmail, String name, String activationCode) {
+    public static SendRegistrationCodeEmailEvent toSendRegistrationEmailEvent(String toEmail, String activationCode) {
         return SendRegistrationCodeEmailEvent.builder()
                 .toEmail(toEmail)
                 .subject("Registration message")
                 .template("registration-template")
                 .attributes(Map.of(
-                        "name", name,
+                        "name", toEmail,
                         "code", activationCode)
                 )
                 .build();

@@ -2,8 +2,7 @@ package com.javaded78.authenticationservice.security.converter;
 
 import com.javaded78.authenticationservice.security.jwt.Token;
 import com.javaded78.authenticationservice.security.service.TokenDeserializer;
-import com.javaded78.authenticationservice.service.MessageSourceService;
-import jakarta.persistence.EntityNotFoundException;
+import com.javaded78.commons.util.MessageSourceService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;

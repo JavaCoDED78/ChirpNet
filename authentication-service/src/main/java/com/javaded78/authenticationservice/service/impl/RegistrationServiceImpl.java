@@ -1,7 +1,7 @@
 package com.javaded78.authenticationservice.service.impl;
 
 import com.javaded78.authenticationservice.client.ProfileServiceClient;
-import com.javaded78.authenticationservice.dto.request.CreateProfileRequest;
+import com.javaded78.authenticationservice.dto.response.CreateProfileRequest;
 import com.javaded78.authenticationservice.dto.request.RegisterRequest;
 import com.javaded78.authenticationservice.dto.response.ActivationCodeResponse;
 import com.javaded78.authenticationservice.dto.response.ActivationResponse;
@@ -9,7 +9,7 @@ import com.javaded78.authenticationservice.model.ActivationCode;
 import com.javaded78.authenticationservice.model.User;
 import com.javaded78.authenticationservice.service.ActivationCodeService;
 import com.javaded78.authenticationservice.service.RegistrationService;
-import com.javaded78.authenticationservice.service.MessageSourceService;
+import com.javaded78.commons.util.MessageSourceService;
 import com.javaded78.authenticationservice.service.UserService;
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
@@ -34,10 +34,8 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Transactional("transactionManager")
     public ActivationCodeResponse register(RegisterRequest request) {
         validateUserExists(request.email(), userService::existsByEmail, "error.account.email.already_exists");
-        validateUserExists(request.username(), userService::existsByUsername, "error.account.username.already_exists");
-
         User newUser = userService.createUser(request);
-        log.info("AuthenticationServiceImpl | register | new user : {} has been created", newUser);
+        log.info("AuthenticationServiceImpl | register | new user : {} has been created", newUser.getEmail());
 
         CreateProfileRequest createProfileRequest = new CreateProfileRequest(
                 request.username(), request.email(), LocalDate.now()

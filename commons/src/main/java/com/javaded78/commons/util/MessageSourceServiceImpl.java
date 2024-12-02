@@ -1,6 +1,5 @@
-package com.javaded78.authenticationservice.service.impl;
+package com.javaded78.commons.util;
 
-import com.javaded78.authenticationservice.service.MessageSourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;

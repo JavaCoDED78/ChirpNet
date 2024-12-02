@@ -1,4 +1,4 @@
-package com.javaded78.authenticationservice.dto.request;
+package com.javaded78.authenticationservice.dto.response;
 
 import java.time.LocalDate;
 

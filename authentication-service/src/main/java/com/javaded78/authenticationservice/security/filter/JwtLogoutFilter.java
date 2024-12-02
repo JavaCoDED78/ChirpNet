@@ -1,7 +1,7 @@
 package com.javaded78.authenticationservice.security.filter;
 
 import com.javaded78.authenticationservice.security.jwt.TokenUser;
-import com.javaded78.authenticationservice.service.MessageSourceService;
+import com.javaded78.commons.util.MessageSourceService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

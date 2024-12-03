@@ -7,12 +7,12 @@ import com.javaded78.storageservice.exception.ImageDownloadException;
 import com.javaded78.storageservice.exception.ImageUploadException;
 import com.javaded78.storageservice.service.StorageService;
 import io.minio.BucketExistsArgs;
-import io.minio.DeleteObjectTagsArgs;
 import io.minio.GetObjectArgs;
 import io.minio.GetObjectResponse;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -112,8 +112,8 @@ public class DefaultStorageService implements StorageService {
 	@Override
 	public Boolean deleteImage(String url) {
 		try {
-			minioClient.deleteObjectTags(
-					DeleteObjectTagsArgs.builder()
+			minioClient.removeObject(
+					RemoveObjectArgs.builder()
 							.bucket(minioProperties.getBucket())
 							.object(url)
 							.build()

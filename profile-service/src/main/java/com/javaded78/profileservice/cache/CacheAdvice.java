@@ -40,6 +40,8 @@ public class CacheAdvice {
 	private void cachingProfile(Profile profile) {
 		redisTemplate.opsForValue().set(CacheConstant.GET_PROFILE_RESPONSE_BY_ID + "::" + profile.getId(), profileMapper.toProfileResponse(profile));
 		redisTemplate.opsForValue().set(CacheConstant.GET_PROFILE_RESPONSE_BY_EMAIL + "::" + profile.getEmail(), profileMapper.toProfileResponse(profile));
+		redisTemplate.opsForValue().set(CacheConstant.GET_PROFILE_AVATAR_BY_EMAIL + "::" + profile.getEmail(), profile.getAvatarUrl());
+		redisTemplate.opsForValue().set(CacheConstant.GET_PROFILE_BANNER_BY_EMAIL + "::" + profile.getEmail(), profile.getBannerUrl());
 	}
 
 	@After(value = "saveProfiles(profiles)", argNames = "profiles")

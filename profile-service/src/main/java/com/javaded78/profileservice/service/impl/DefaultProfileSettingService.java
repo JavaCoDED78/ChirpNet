@@ -92,25 +92,21 @@ public class DefaultProfileSettingService implements ProfileSettingService {
 	}
 
 	@Override
-	@CachePut(value = CacheConstant.GET_PROFILE_AVATAR_BY_EMAIL, key = "#loggedInUser")
 	public Boolean uploadAvatarImage(MultipartFile file, String loggedInUser) {
 		return uploadImage(file, loggedInUser, Profile::getAvatarUrl, Profile::setAvatarUrl);
 	}
 
 	@Override
-	@CacheEvict(value = CacheConstant.GET_PROFILE_AVATAR_BY_EMAIL, key = "#loggedInUser")
 	public Boolean deleteAvatarImage(String loggedInUser) {
 		return deleteImage(loggedInUser, Profile::getAvatarUrl, Profile::setAvatarUrl);
 	}
 
 	@Override
-	@CachePut(value = CacheConstant.GET_PROFILE_BANNER_BY_EMAIL, key = "#loggedInUser")
 	public Boolean uploadBannerImage(MultipartFile file, String loggedInUser) {
 		return uploadImage(file, loggedInUser, Profile::getBannerUrl, Profile::setBannerUrl);
 	}
 
 	@Override
-	@CacheEvict(value = CacheConstant.GET_PROFILE_BANNER_BY_EMAIL, key = "#loggedInUser")
 	public Boolean deleteBannerImage(String loggedInUser) {
 		return deleteImage(loggedInUser, Profile::getBannerUrl, Profile::setBannerUrl);
 	}

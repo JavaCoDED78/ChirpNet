@@ -1,0 +1,16 @@
+server:
+  port: 8083
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+minio:
+  bucket: images
+  url: http://localhost:9000
+  accessKey: minioadmin
+  secretKey: minioadmin
+
+logging:
+  level:
+    io.minio: trace

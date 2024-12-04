@@ -1,0 +1,44 @@
+server:
+  port: 8084
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+  data:
+    mongodb:
+      uri: mongodb://tweet:tweet@localhost:27027/tweet-service?readPreference=secondaryPreferred
+      username: tweet
+      password: tweet
+      host: localhost
+      port: 27027
+      database: tweet-service
+      authenticationDatabase: tweet-service
+      auto-index-creation: true
+
+    redis:
+      host: localhost
+      port: 6380
+      password: redis
+
+  jpa:
+    open-in-view: false
+
+  cache:
+    type: redis
+    cache-names: redis-cache
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      storage-service:
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        sliding-window-size: 10
+        wait-duration-in-open-state: 3s
+
+logging:
+  level:
+    io.github.resilience4j.circuitbreaker: trace
+    org.springframework.data.mongodb: trace
+    org.springframework.data.redis: trace

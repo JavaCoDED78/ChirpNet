@@ -3,18 +3,24 @@ version: '3.9'
 name: chirpnet
 
 networks:
-  mongo-cluster:
+  mongo-cluster-profile:
+    driver: bridge
+  mongo-cluster-tweet:
     driver: bridge
 
 volumes:
   mongo-profile-1-data:
   mongo-profile-2-data:
   mongo-profile-3-data:
+  mongo-tweet-1-data:
+  mongo-tweet-2-data:
+  mongo-tweet-3-data:
   postgres-auth-data:
   kafka-1-data:
   kafka-2-data:
   kafka-3-data:
   redis-profile-data:
+  redis-tweet-data:
   minio-data:
 
 services:
@@ -101,10 +107,10 @@ services:
   mongo-profile-1:
     container_name: mongo_profile_rs0
     image: 'mongo:jammy'
-    hostname: mongo1
+    hostname: mongoprofile1
     command:
       - '--replSet'
-      - rs0
+      - 'rs_profile'
       - '--bind_ip'
       - '0.0.0.0'
       - '--port'
@@ -119,11 +125,11 @@ services:
     ports:
       - '27017:27017'
     networks:
-      - mongo-cluster
+      - mongo-cluster-profile
     healthcheck:
       test: >-
         echo "try {rs.status()} catch(err)
-        {rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo1:27017',priority:1},{_id:1,host:'mongo2:27018',priority:0.5},{_id:2,host:'mongo3:27019',priority:0.5}]})}"
+        {rs.initiate({_id:'rs_profile',members:[{_id:0,host:'mongoprofile1:27017',priority:1},{_id:1,host:'mongoprofile2:27018',priority:0.5},{_id:2,host:'mongoprofile3:27019',priority:0.5}]})}"
         | mongosh --port 27017 -u '${MONGO_ADMIN_USER}' -p
         '${MONGO_ADMIN_PASSWD}' --authenticationDatabase
         admin --quiet
@@ -141,10 +147,10 @@ services:
   mongo-profile-2:
     container_name: mongo_profile_rs1
     image: 'mongo:jammy'
-    hostname: mongo2
+    hostname: mongoprofile2
     command:
       - '--replSet'
-      - rs0
+      - 'rs_profile'
       - '--bind_ip'
       - '0.0.0.0'
       - '--port'
@@ -158,7 +164,7 @@ services:
     ports:
       - '27018:27017'
     networks:
-      - mongo-cluster
+      - mongo-cluster-profile
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ADMIN_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ADMIN_PASSWD}
@@ -166,10 +172,10 @@ services:
   mongo-profile-3:
     container_name: mongo_profile_rs2
     image: 'mongo:jammy'
-    hostname: mongo3
+    hostname: mongoprofile3
     command:
       - '--replSet'
-      - rs0
+      - 'rs_profile'
       - '--bind_ip'
       - '0.0.0.0'
       - '--port'
@@ -183,7 +189,7 @@ services:
     ports:
       - '27019:27017'
     networks:
-      - mongo-cluster
+      - mongo-cluster-profile
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ADMIN_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ADMIN_PASSWD}
@@ -194,14 +200,14 @@ services:
     ports:
       - '8091:8081'
     networks:
-      - mongo-cluster
+      - mongo-cluster-profile
     environment:
       ME_CONFIG_BASICAUTH: false
       ME_CONFIG_MONGODB_ENABLE_ADMIN: false
       ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ADMIN_USER}
       ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ADMIN_PASSWD}
       ME_CONFIG_MONGODB_URL: >-
-        mongodb://profile:profile@mongo1:27017,mongo2:27018,mongo3:27019/profile-service?replicaSet=rs0
+        mongodb://profile:profile@mongoprofile1:27017,mongoprofile2:27018,mongoprofile3:27019/profile-service?replicaSet=rs_profile
     depends_on:
       mongo-profile-1:
         condition: service_healthy
@@ -218,3 +224,122 @@ services:
       - '9000:9000'
     volumes:
       - minio-data:/minio
+
+  redis-tweet-service:
+    container_name: redis_tweet_service
+    hostname: redis_tweet_service
+    image: 'redis:alpine'
+    ports:
+      - "6380:6379"
+    restart: unless-stopped
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-tweet-data:/data
+
+  mongo-tweet-1:
+    container_name: mongo_tweet_rs0
+    image: 'mongo:jammy'
+    hostname: mongotweet1
+    command:
+      - '--replSet'
+      - 'rs_tweet'
+      - '--bind_ip'
+      - '0.0.0.0'
+      - '--port'
+      - '27027'
+      - '--keyFile'
+      - /etc/mongodb/pki/keyfile
+    volumes:
+      - 'mongo-tweet-1-data:/data/db'
+      - 'mongo-tweet-1-data:/data/configdb'
+      - './mongo-keyfile:/etc/mongodb/pki/keyfile'
+      - './init-mongo-auth.js:/docker-entrypoint-initdb.d/init-mongo.js'
+    ports:
+      - '27027:27027'
+    networks:
+      - mongo-cluster-tweet
+    healthcheck:
+      test: >-
+        echo "try {rs.status()} catch(err)
+        {rs.initiate({_id:'rs_tweet',members:[{_id:0,host:'mongotweet1:27027',priority:1},{_id:1,host:'mongotweet2:27028',priority:0.5},{_id:2,host:'mongotweet3:27029',priority:0.5}]})}"
+        | mongosh --port 27027 -u '${MONGO_ADMIN_USER}' -p
+        '${MONGO_ADMIN_PASSWD}' --authenticationDatabase
+        admin --quiet
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ADMIN_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ADMIN_PASSWD}
+      MONGO_INITDB_DATABASE: tweet-service
+      DB_USERNAME: tweet
+      DB_PASSWORD: tweet
+
+  mongo-tweet-2:
+    container_name: mongo_tweet_rs1
+    image: 'mongo:jammy'
+    hostname: mongotweet2
+    command:
+      - '--replSet'
+      - 'rs_tweet'
+      - '--bind_ip'
+      - '0.0.0.0'
+      - '--port'
+      - '27028'
+      - '--keyFile'
+      - /etc/mongodb/pki/keyfile
+    volumes:
+      - 'mongo-tweet-2-data:/data/db'
+      - 'mongo-tweet-2-data:/data/configdb'
+      - './mongo-keyfile:/etc/mongodb/pki/keyfile'
+    ports:
+      - '27028:27027'
+    networks:
+      - mongo-cluster-tweet
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ADMIN_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ADMIN_PASSWD}
+
+  mongo-tweet-3:
+    container_name: mongo_tweet_rs2
+    image: 'mongo:jammy'
+    hostname: mongotweet3
+    command:
+      - '--replSet'
+      - 'rs_tweet'
+      - '--bind_ip'
+      - '0.0.0.0'
+      - '--port'
+      - '27029'
+      - '--keyFile'
+      - /etc/mongodb/pki/keyfile
+    volumes:
+      - 'mongo-tweet-3-data:/data/db'
+      - 'mongo-tweet-3-data:/data/configdb'
+      - './mongo-keyfile:/etc/mongodb/pki/keyfile'
+    ports:
+      - '27029:27027'
+    networks:
+      - mongo-cluster-tweet
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ADMIN_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ADMIN_PASSWD}
+
+  mongo-express-tweet:
+    container_name: mongo-express-tweet
+    image: 'mongo-express:latest'
+    ports:
+      - '8092:8081'
+    networks:
+      - mongo-cluster-tweet
+    environment:
+      ME_CONFIG_BASICAUTH: false
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: false
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_ADMIN_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_ADMIN_PASSWD}
+      ME_CONFIG_MONGODB_URL: >-
+        mongodb://tweet:tweet@mongotweet1:27027,mongotweet2:27028,mongotweet3:27029/tweet-service?replicaSet=rs_tweet
+    depends_on:
+      mongo-tweet-1:
+        condition: service_healthy

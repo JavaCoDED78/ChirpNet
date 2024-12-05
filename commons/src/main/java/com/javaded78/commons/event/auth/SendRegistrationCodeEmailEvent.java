@@ -1,4 +1,4 @@
-package com.javaded78.commons.event;
+package com.javaded78.commons.event.auth;
 
 import lombok.Builder;
 

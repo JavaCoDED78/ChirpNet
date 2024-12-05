@@ -1,6 +1,6 @@
 package com.javaded78.emailservice.service.impl;
 
-import com.javaded78.commons.event.SendRegistrationCodeEmailEvent;
+import com.javaded78.commons.event.auth.SendRegistrationCodeEmailEvent;
 import com.javaded78.emailservice.exception.RetryableException;
 import com.javaded78.emailservice.service.EmailService;
 import jakarta.mail.MessagingException;

@@ -1,6 +1,6 @@
 package com.javaded78.authenticationservice.producer;
 
-import com.javaded78.commons.event.SendRegistrationCodeEmailEvent;
+import com.javaded78.commons.event.auth.SendRegistrationCodeEmailEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;

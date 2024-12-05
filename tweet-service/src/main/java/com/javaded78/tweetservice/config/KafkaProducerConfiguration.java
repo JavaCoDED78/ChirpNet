@@ -1,6 +1,5 @@
 package com.javaded78.tweetservice.config;
 
-import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -14,12 +13,12 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.transaction.KafkaTransactionManager;
-import org.springframework.orm.jpa.JpaTransactionManager;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.javaded78.commons.constant.KafkaTopicConstants.SEND_EMAIL_TOPIC;
+import static com.javaded78.commons.constant.KafkaTopicConstants.HOME_TIMELINE_TOPIC;
+import static com.javaded78.commons.constant.KafkaTopicConstants.USER_TIMELINE_TOPIC;
 
 @EnableKafka
 @Configuration
@@ -59,14 +58,27 @@ public class KafkaProducerConfiguration {
 		return new KafkaTransactionManager<>(producerFactory);
 }
 
-	@Bean("transactionManager")
-	@Primary
-	public JpaTransactionManager jpaTransactionManager(EntityManagerFactory entityManagerFactory) {
-		return new JpaTransactionManager(entityManagerFactory);
+//	@Bean("transactionManager")
+//	@Primary
+//	public JpaTransactionManager jpaTransactionManager(EntityManagerFactory entityManagerFactory) {
+//		return new JpaTransactionManager(entityManagerFactory);
+//	}
+
+	@Bean
+	NewTopic createUserTimelineTopic() {
+		return TopicBuilder
+				.name(USER_TIMELINE_TOPIC)
+				.partitions(3)
+				.replicas(3)
+				.build();
 	}
 
 	@Bean
-	NewTopic createSendEmailTopic() {
-		return TopicBuilder.name(SEND_EMAIL_TOPIC).partitions(3).replicas(3).build();
+	NewTopic createHomeTimelineTopic() {
+		return TopicBuilder
+				.name(HOME_TIMELINE_TOPIC)
+				.partitions(3)
+				.replicas(3)
+				.build();
 	}
 }

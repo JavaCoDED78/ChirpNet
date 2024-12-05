@@ -31,4 +31,8 @@ public interface TweetService {
 
 	void deleteTweet(String tweetId,
 	                 String loggedInUser);
+
+	Integer countRetweetsForTweet(String tweetId);
+
+	Integer countLikesForTweet(String tweetId);
 }

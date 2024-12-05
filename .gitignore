@@ -37,4 +37,4 @@ build/
 *.jks
 /authentication-service/data/
 /.fastRequest/
-
+/amplicode.xml

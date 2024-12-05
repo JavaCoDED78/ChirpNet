@@ -1,5 +1,10 @@
 package com.javaded78.tweetservice.controller.rest;
 
+import com.javaded78.tweetservice.dto.request.TweetCreateRequest;
+import com.javaded78.tweetservice.dto.request.TweetUpdateRequest;
+import com.javaded78.tweetservice.dto.response.PaginationResponse;
+import com.javaded78.tweetservice.dto.response.TweetResponse;
+import com.javaded78.tweetservice.service.TweetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -24,21 +29,21 @@ public class TweetController {
 
 	@PostMapping
 	public ResponseEntity<TweetResponse> createTweet(
-			@Validated @RequestPart TweetRequest tweetRequest,
+			@Validated @RequestPart TweetCreateRequest tweetCreateRequest,
 			@RequestPart(required = false) MultipartFile[] files,
 			@RequestHeader String loggedInUser
 	) {
-		return ResponseEntity.ok(tweetService.createTweet(tweetRequest, files, loggedInUser));
+		return ResponseEntity.ok(tweetService.createTweet(tweetCreateRequest, files, loggedInUser));
 	}
 
 	@PostMapping("/{tweetId}")
 	public ResponseEntity<TweetResponse> createQuoteTweet(
-			@Validated @RequestPart TweetRequest tweetRequest,
+			@Validated @RequestPart TweetCreateRequest tweetCreateRequest,
 			@RequestPart(required = false) MultipartFile[] files,
 			@PathVariable String tweetId,
 			@RequestHeader String loggedInUser
 	) {
-		return ResponseEntity.ok(tweetService.createQuoteTweet(tweetRequest, files, tweetId, loggedInUser));
+		return ResponseEntity.ok(tweetService.createQuoteTweet(tweetCreateRequest, files, tweetId, loggedInUser));
 	}
 
 	@GetMapping("/{tweetId}")
@@ -59,12 +64,12 @@ public class TweetController {
 
 	@PatchMapping("/{tweetId}")
 	public ResponseEntity<TweetResponse> updateTweet(
-			@Validated @RequestPart TweetRequest tweetRequest,
+			@Validated @RequestPart TweetUpdateRequest tweetUpdateRequest,
 			@RequestPart(required = false) MultipartFile[] files,
 			@PathVariable String tweetId,
 			@RequestHeader String loggedInUser
 	) {
-		return ResponseEntity.ok(tweetService.updateTweet(tweetRequest, files, tweetId, loggedInUser));
+		return ResponseEntity.ok(tweetService.updateTweet(tweetUpdateRequest, files, tweetId, loggedInUser));
 	}
 
 	@DeleteMapping("/{tweetId}")

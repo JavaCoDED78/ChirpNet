@@ -62,31 +62,30 @@ public class DefaultFollowService implements FollowService {
 		Profile profileFollower = profileService.getProfileByEmail(loggedInUser);
 		Profile profileFollowing = profileService.getProfileById(followingId);
 		followRepository.removeFollowRelationship(profileFollower.getId(), followingId);
-		unfollowCounts(profileFollower, profileFollowing);
+		processFollowCounts(profileFollower, profileFollowing, false);
 		return true;
 	}
 
-	private void unfollowCounts(Profile profileFollower, Profile profileFollowing) {
-		profileFollower.unSetFollowerCount();
-		profileFollowing.unSetFollowingCount();
+	private void processFollowCounts(Profile profileFollower, Profile profileFollowing, boolean IiFollow) {
+		if (IiFollow) {
+			profileFollower.setFollowingCount();
+			profileFollowing.setFollowerCount();
+		} else {
+			profileFollower.unSetFollowerCount();
+			profileFollowing.unSetFollowingCount();
+		}
 		profileService.saveAll(profileFollower, profileFollowing);
 	}
 
 	private Follow createFollowEntity(String followerId, String followeeId) {
 		Profile profileFollower = profileService.getProfileById(followerId);
 		Profile profileFollowing = profileService.getProfileById(followeeId);
-		followCounts(profileFollower, profileFollowing);
+		processFollowCounts(profileFollower, profileFollowing, true);
 		return Follow.builder()
 				.followerProfile(profileFollower)
 				.followeeProfile(profileFollowing)
 				.followDateTime(LocalDateTime.now())
 				.build();
-	}
-
-	private void followCounts(Profile profileFollower, Profile profileFollowing) {
-		profileFollower.setFollowingCount();
-		profileFollowing.setFollowerCount();
-		profileService.saveAll(profileFollower, profileFollowing);
 	}
 
 	@Override

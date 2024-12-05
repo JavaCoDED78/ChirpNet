@@ -18,10 +18,6 @@ public interface ProfileService {
 
 	String getProfileIdByEmail(String email);
 
-	String getProfileAvatar(String loggedInUser);
-
-	String getProfileBanner(String loggedInUser);
-
 	Profile getProfileById(String id);
 
 	Profile getProfileByEmail(String email);
@@ -29,4 +25,5 @@ public interface ProfileService {
 	Profile save(Profile profile);
 
 	void saveAll(Profile... profiles);
+
 }

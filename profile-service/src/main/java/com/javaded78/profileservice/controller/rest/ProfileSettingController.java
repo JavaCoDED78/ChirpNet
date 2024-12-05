@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,23 +34,35 @@ public class ProfileSettingController {
 		return ResponseEntity.ok(profileSettingService.updateProfile(id, request, loggedInUser));
 	}
 
+	@GetMapping("/images/avatar")
+	public ResponseEntity<String> getProfileAvatar(@RequestHeader String loggedInUser) {
+		return ResponseEntity.ok(profileSettingService.getAvatar(loggedInUser));
+	}
+
+	@GetMapping("/images/banner")
+	public ResponseEntity<String> getProfileBanner(@RequestHeader String loggedInUser) {
+		return ResponseEntity.ok(profileSettingService.getBanner(loggedInUser));
+	}
+
 	@PostMapping("/images/avatar")
-	public ResponseEntity<Boolean> uploadAvatarImage(@RequestParam MultipartFile file, @RequestHeader String loggedInUser) {
+	public ResponseEntity<String> uploadAvatarImage(@RequestParam MultipartFile file, @RequestHeader String loggedInUser) {
 		return ResponseEntity.ok(profileSettingService.uploadAvatarImage(file, loggedInUser));
 	}
 
 	@DeleteMapping("/images/avatar")
-	public ResponseEntity<Boolean> deleteAvatarImage(@RequestHeader String loggedInUser) {
-		return ResponseEntity.ok(profileSettingService.deleteAvatarImage(loggedInUser));
+	public ResponseEntity<Void> deleteAvatarImage(@RequestHeader String loggedInUser) {
+		profileSettingService.deleteAvatarImage(loggedInUser);
+		return ResponseEntity.noContent().build();
 	}
 
 	@PostMapping("/images/banner")
-	public ResponseEntity<Boolean> uploadBannerImage(@RequestParam MultipartFile file, @RequestHeader String loggedInUser) {
+	public ResponseEntity<String> uploadBannerImage(@RequestParam MultipartFile file, @RequestHeader String loggedInUser) {
 		return ResponseEntity.ok(profileSettingService.uploadBannerImage(file, loggedInUser));
 	}
 
 	@DeleteMapping("/images/banner")
 	public ResponseEntity<Boolean> deleteBannerImage(@RequestHeader String loggedInUser) {
-		return ResponseEntity.ok(profileSettingService.deleteBannerImage(loggedInUser));
+		profileSettingService.deleteBannerImage(loggedInUser);
+		return ResponseEntity.noContent().build();
 	}
 }

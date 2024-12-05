@@ -8,11 +8,15 @@ public interface ProfileSettingService {
 
 	ProfileResponse updateProfile(String id, UpdateProfileRequest request, String loggedInUser);
 
-	Boolean uploadAvatarImage(MultipartFile file, String loggedInUser);
+	String getAvatar(String loggedInUser);
 
-	Boolean deleteAvatarImage(String loggedInUser);
+	String getBanner(String loggedInUser);
 
-	Boolean uploadBannerImage(MultipartFile file, String loggedInUser);
+	String uploadAvatarImage(MultipartFile file, String loggedInUser);
 
-	Boolean deleteBannerImage(String loggedInUser);
+	void deleteAvatarImage(String loggedInUser);
+
+	String uploadBannerImage(MultipartFile file, String loggedInUser);
+
+	void deleteBannerImage(String loggedInUser);
 }

@@ -44,14 +44,4 @@ public class ProfileController {
 	public ResponseEntity<String> getProfileIdByEmail(@PathVariable String email) {
 		return ResponseEntity.ok(profileService.getProfileIdByEmail(email));
 	}
-
-	@GetMapping("/images/avatar")
-	public ResponseEntity<String> getProfileAvatar(@RequestHeader String loggedInUser) {
-		return ResponseEntity.ok(profileService.getProfileAvatar(loggedInUser));
-	}
-
-	@GetMapping("/images/banner")
-	public ResponseEntity<String> getProfileBanner(@RequestHeader String loggedInUser) {
-		return ResponseEntity.ok(profileService.getProfileBanner(loggedInUser));
-	}
 }

@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 @Service
@@ -69,26 +68,6 @@ public class DefaultProfileService implements ProfileService {
 	@Cacheable(value = CacheConstant.GET_PROFILE_ID_BY_EMAIL, key = "#email")
 	public String getProfileIdByEmail(String email) {
 		return getProfileByEmail(email).getId();
-	}
-
-	@Override
-	@Cacheable(value = CacheConstant.GET_PROFILE_AVATAR_BY_EMAIL, key = "#loggedInUser")
-	public String getProfileAvatar(String loggedInUser) {
-		return getProfileImage(Profile::getAvatarUrl, loggedInUser);
-	}
-
-	@Override
-	@Cacheable(value = CacheConstant.GET_PROFILE_BANNER_BY_EMAIL, key = "#loggedInUser")
-	public String getProfileBanner(String loggedInUser) {
-		return getProfileImage(Profile::getBannerUrl, loggedInUser);
-	}
-
-	private String getProfileImage(Function<Profile, String> function, String email) {
-		return profileRepository.findByEmail(email)
-				.map(function)
-				.orElseThrow(() -> new EntityNotFoundException(
-						messageSourceService.generateMessage("error.image.not_found", email)
-				));
 	}
 
 	@Override

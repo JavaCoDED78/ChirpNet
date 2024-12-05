@@ -35,8 +35,8 @@ public class Profile implements BaseEntity<String> {
 	private String location;
 	private String website;
 	private LocalDate birthDate;
-	private String avatarUrl;
-	private String bannerUrl;
+	private String avatarUrl = "";
+	private String bannerUrl = "";
 
 	@Setter(AccessLevel.NONE)
 	private int followerCount;

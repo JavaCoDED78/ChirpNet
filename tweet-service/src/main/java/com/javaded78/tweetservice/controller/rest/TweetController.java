@@ -59,7 +59,8 @@ public class TweetController {
 			@PathVariable String profileId,
 			Pageable pageable
 	) {
-		return ResponseEntity.ok(tweetService.getTweetResponsesForUser(profileId, pageable));
+		PaginationResponse<TweetResponse> response = PaginationResponse.of(tweetService.getTweetResponsesForUser(profileId, pageable));
+		return ResponseEntity.ok(response);
 	}
 
 	@PatchMapping("/{tweetId}")

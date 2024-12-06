@@ -7,7 +7,7 @@ import com.javaded78.commons.util.MessageSourceService;
 import com.javaded78.tweetservice.client.ProfileServiceClient;
 import com.javaded78.tweetservice.dto.request.TweetCreateRequest;
 import com.javaded78.tweetservice.dto.request.TweetUpdateRequest;
-import com.javaded78.tweetservice.dto.response.PaginationResponse;
+import com.javaded78.tweetservice.dto.response.ProfileResponse;
 import com.javaded78.tweetservice.dto.response.TweetResponse;
 import com.javaded78.tweetservice.exception.CreateEntityException;
 import com.javaded78.tweetservice.exception.EntityNotFoundException;
@@ -19,6 +19,7 @@ import com.javaded78.tweetservice.service.MediaTweetService;
 import com.javaded78.tweetservice.service.TweetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,9 +50,10 @@ public class DefaultTweetService implements TweetService {
 						profileServiceClient,
 						loggedInUser)
 				)
+				.map(tweet -> mediaTweetService.uploadMediaTweet(tweet, files))
 				.map(tweetRepository::save)
 				.map(tweet -> {
-					publishTweetEvent(tweet);
+					publishTweetEvent(tweet, OperationTweet.ADD);
 					return tweetMapper.toTweetResponse(tweet);
 				})
 				.orElseThrow(() -> new CreateEntityException(
@@ -76,7 +78,7 @@ public class DefaultTweetService implements TweetService {
 				.map(tweet -> mediaTweetService.uploadMediaTweet(tweet, files))
 				.map(tweetRepository::save)
 				.map(tweet -> {
-					publishTweetEvent(tweet);
+					publishTweetEvent(tweet, OperationTweet.ADD);
 					return tweetMapper.toTweetResponse(tweet);
 				})
 				.orElseThrow(() -> new EntityNotFoundException(
@@ -84,44 +86,74 @@ public class DefaultTweetService implements TweetService {
 				));
 	}
 
-	private void publishTweetEvent(Tweet tweet) {
+	private void publishTweetEvent(Tweet tweet, OperationTweet operationTweet) {
 		applicationEventPublisher.publishEvent(
 				new TweetProcessingEvent(
 						tweet.getId(),
 						tweet.getProfileId(),
 						TypeTweet.TWEETS,
-						OperationTweet.ADD
+						operationTweet
 				)
 		);
 	}
 
 	@Override
 	public TweetResponse getTweetResponseById(String tweetId, String loggedInUser) {
-		return null;
+		return tweetRepository.findById(tweetId)
+
+
+				.map(tweet -> viewService.createView(tweet, loggedInUser, profileServiceClient))
+				.map(tweet -> tweetMapper.toTweetResponse(tweet))
+				.orElseThrow(() -> new EntityNotFoundException(
+						messageSourceService.generateMessage("error.entity.not_found", tweetId)
+				));
 	}
 
 	@Override
-	public PaginationResponse<TweetResponse> getTweetResponsesForUser(String profileId, Pageable pageable) {
-		return null;
+	public Page<TweetResponse> getTweetResponsesForUser(String profileId, Pageable pageable) {
+		ProfileResponse profileResponse = profileServiceClient.getProfileById(profileId);
+		return tweetRepository.findAllWithReplyAndRetweetIsNull(profileId, pageable)
+				.stream()
+				.map(tweet -> tweetMapper.toTweetResponse(tweet));
 	}
 
 	@Override
-	public TweetResponse updateTweet(TweetUpdateRequest tweetUpdateRequest, MultipartFile[] files, String tweetId, String loggedInUser) {
-		return null;
+	public TweetResponse updateTweet(TweetUpdateRequest tweetUpdateRequest,
+	                                 MultipartFile[] files,
+	                                 String tweetId,
+	                                 String loggedInUser
+	) {
+		String profileId = profileServiceClient.getProfileIdByLoggedInUser(loggedInUser);
+		return tweetRepository.findOwnedById(tweetId, profileId)
+				.map(tweet -> tweetMapper.updateTweet(tweetUpdateRequest, tweet))
+				.map(tweet -> mediaTweetService.updateMediaTweet(tweet, files))
+				.map(tweetRepository::save)
+				.map(tweet -> tweetMapper.toTweetResponse(tweet))
+				.orElseThrow(() -> new EntityNotFoundException(
+						messageSourceService.generateMessage("error.entity.not_found", tweetId)
+				));
 	}
 
 	@Override
 	public void deleteTweet(String tweetId, String loggedInUser) {
-
+		String profileId = profileServiceClient.getProfileIdByLoggedInUser(loggedInUser);
+		return tweetRepository.findOwnedById(tweetId, profileId)
+				.map(tweet -> {
+					publishTweetEvent(tweet, OperationTweet.DELETE);
+					tweetRepository.delete(tweet);
+				})
+				.orElseThrow(() -> new EntityNotFoundException(
+						messageSourceService.generateMessage("error.entity.not_found", tweetId)
+				));
 	}
 
-	@Override
-	public Integer countRetweetsForTweet(String tweetId) {
-		return tweetRepository.countRetweets((tweetId));
-	}
-
-	@Override
-	public Integer countLikesForTweet(String tweetId) {
-		return tweetRepository.countLikes((tweetId));
-	}
+//	@Override
+//	public Integer countRetweetsForTweet(String tweetId) {
+//		return tweetRepository.countRetweets((tweetId));
+//	}
+//
+//	@Override
+//	public Integer countLikesForTweet(String tweetId) {
+//		return tweetRepository.countLikes((tweetId));
+//	}
 }

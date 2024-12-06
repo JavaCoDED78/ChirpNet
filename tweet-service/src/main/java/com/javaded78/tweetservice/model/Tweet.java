@@ -46,6 +46,12 @@ public class Tweet implements BaseEntity<String> {
 	private Set<String> mediaUrls = new HashSet<>();
 
 	@DBRef(lazy = true)
+	private Set<Tweet> retweets = new HashSet<>();
+
+	@DBRef(lazy = true)
+	private Set<Tweet> replies = new HashSet<>();
+
+	@DBRef(lazy = true)
 	private Set<Like> likes = new HashSet<>();
 
 	@DBRef(lazy = true)

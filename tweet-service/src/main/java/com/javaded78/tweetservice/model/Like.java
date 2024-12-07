@@ -6,11 +6,15 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
+import org.springframework.data.cassandra.core.mapping.Column;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.PrimaryKeyClass;
+import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
+import org.springframework.data.cassandra.core.mapping.Table;
+
+import java.io.Serializable;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,19 +22,30 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Document(collection = "likes")
-@CompoundIndexes({
-		@CompoundIndex(name = "parentTweet_profileId_idx", def = "{'parentTweetId': 1, 'profileId': 1}", unique = true)
-})
-public class Like implements BaseEntity<String> {
+@Table("likes")
+public class Like implements BaseEntity<Like.LikeKey> {
 
+	@PrimaryKey
 	@EqualsAndHashCode.Include
-	@Id
-	private String id;
+	private LikeKey id;
 
-	@Indexed
-	private String parentTweetId;
+	@Column("parent_tweet_id")
+	private UUID parentTweetId;
 
-	@Indexed
+	@Column("profile_id")
 	private String profileId;
+
+	@PrimaryKeyClass
+	@Getter
+	@Setter
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class LikeKey implements Serializable {
+
+		@PrimaryKeyColumn(name = "parent_tweet_id", type = PrimaryKeyType.PARTITIONED)
+		private UUID parentTweetId;
+
+		@PrimaryKeyColumn(name = "profile_id", type = PrimaryKeyType.CLUSTERED)
+		private String profileId;
+	}
 }

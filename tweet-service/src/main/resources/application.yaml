@@ -21,8 +21,9 @@ spring:
       port: 6380
       password: redis
 
-  jpa:
-    open-in-view: false
+  liquibase:
+    change-log: classpath:liquibase/db.changelog.yaml
+    enabled: true
 
   kafka:
     producer:

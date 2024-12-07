@@ -31,12 +31,25 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-cloud.version>2023.0.3</spring-cloud.version>
         <mapstruct.version>1.6.2</mapstruct.version>
+        <liquibase.version>4.29.1</liquibase.version>
+        <cassandra.jdbc.wrapper.version>4.13.1</cassandra.jdbc.wrapper.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-cassandra</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ing.data</groupId>
+            <artifactId>cassandra-jdbc-wrapper</artifactId>
+            <version>${cassandra.jdbc.wrapper.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.liquibase.ext</groupId>
+            <artifactId>liquibase-cassandra</artifactId>
+            <version>${liquibase.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

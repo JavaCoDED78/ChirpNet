@@ -6,17 +6,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.index.TextIndexed;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.cassandra.core.mapping.Column;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -24,45 +21,30 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Document(collection = "tweets")
-@CompoundIndexes({
-		@CompoundIndex(name = "profileId_creationDate_idx", def = "{'profileId': 1, 'creationDate': -1}", unique = true),
-		@CompoundIndex(name = "retweet_reply_idx", def = "{'retweetTo': 1, 'replyTo': 1, 'creationDate': -1}", unique = true)})
-public class Tweet implements BaseEntity<String> {
+@Table("tweets")
+public class Tweet implements BaseEntity<UUID> {
 
-	@Id
-	@EqualsAndHashCode.Include
-	private String id;
+	@PrimaryKey
+	private UUID id;
 
-	@TextIndexed
+	@Column("text")
 	private String text;
 
-	@Indexed
+	@Column("profile_id")
 	private String profileId;
 
-	@Indexed
-	private LocalDateTime createdDateTime;
+	@Column("creation_date")
+	private LocalDateTime creationDate;
 
+	@Column("media_urls")
 	private Set<String> mediaUrls = new HashSet<>();
 
-	@DBRef(lazy = true)
-	private Set<Tweet> retweets = new HashSet<>();
+	@Column("retweet_to_id")
+	private UUID retweetToId;
 
-	@DBRef(lazy = true)
-	private Set<Tweet> replies = new HashSet<>();
+	@Column("reply_to_id")
+	private UUID replyToId;
 
-	@DBRef(lazy = true)
-	private Set<Like> likes = new HashSet<>();
-
-	@DBRef(lazy = true)
-	private Set<View> views = new HashSet<>();
-
-	@DBRef
-	private Tweet retweetTo;
-
-	@DBRef
-	private Tweet replyTo;
-
-	@DBRef
-	private Tweet quoteTo;
+	@Column("quote_to_id")
+	private UUID quoteToId;
 }

@@ -7,16 +7,17 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 public record TweetResponse(
 
-		Long id,
+		UUID id,
 		TweetResponse replyTo,
-		TweetResponse retweetTo,
+		TweetResponse retweetOf,
 		ProfileResponse profile,
 		String text,
 		Set<String> mediaUrls,
-		TweetResponse quoteTo,
+		TweetResponse quoteOf,
 		Integer retweets,
 		Integer replies,
 		Integer likes,

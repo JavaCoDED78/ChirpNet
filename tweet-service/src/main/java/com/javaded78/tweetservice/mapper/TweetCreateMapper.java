@@ -10,18 +10,18 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface TweetCreateMapper extends Mappable<Tweet, TweetCreateRequest> {
 
-	@Mapping(target = "id", ignore = true)
-	@Mapping(target = "text", expression = "java(request.text())")
+	@Mapping(target = "tweetId", expression ="java(java.util.UUID.randomUUID())")
+	@Mapping(target = "content", expression = "java(request.text())")
 	@Mapping(target = "profileId", expression = "java(profileServiceClient.getProfileIdByLoggedInUser(loggedInUser))")
-	@Mapping(target = "creationDate", expression = "java(java.time.LocalDateTime.now())")
-	@Mapping(target = "mediaUrls", ignore = true)
-	@Mapping(target = "retweetTo", ignore = true)
-	@Mapping(target = "quoteTo", expression = "java(quoteTo)")
-	@Mapping(target = "replyTo", expression = "java(replyTo)")
+	@Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
+	@Mapping(target = "retweetOfId", expression = "java(retweetOf.getTweetId())")
+	@Mapping(target = "quoteOfId", expression = "java(quoteOf.getTweetId())")
+	@Mapping(target = "replyToId", expression = "java(replyTo.getTweetId())")
 	Tweet toEntity(
 			TweetCreateRequest request,
-			Tweet quoteTo,
+			Tweet quoteOf,
 			Tweet replyTo,
+			Tweet retweetOf,
 			@Context ProfileServiceClient profileServiceClient,
 			@Context String loggedInUser
 	);

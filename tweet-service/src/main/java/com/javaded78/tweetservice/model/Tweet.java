@@ -6,12 +6,15 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
 import org.springframework.data.cassandra.core.mapping.Column;
-import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -21,30 +24,39 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table("tweets")
-public class Tweet implements BaseEntity<UUID> {
+@Table("tweets_by_user")
+public class Tweet {
 
-	@PrimaryKey
-	private UUID id;
+	@PrimaryKeyColumn(name = "profile_id", type = PrimaryKeyType.PARTITIONED)
+	private UUID profileId;
 
-	@Column("text")
-	private String text;
+	@PrimaryKeyColumn(name = "tweet_id", type = PrimaryKeyType.CLUSTERED)
+	@EqualsAndHashCode.Include
+	private UUID tweetId;
 
-	@Column("profile_id")
-	private String profileId;
+	@Column("content")
+	private String content;
 
-	@Column("creation_date")
-	private LocalDateTime creationDate;
+	@Column("created_at")
+	private Instant createdAt;
+
+	@Column("hashtags")
+	@Builder.Default
+	private List<String> hashtags = new ArrayList<>();
 
 	@Column("media_urls")
+	@Builder.Default
 	private Set<String> mediaUrls = new HashSet<>();
 
-	@Column("retweet_to_id")
-	private UUID retweetToId;
+	@Column("retweet_of_id")
+	private UUID retweetOfId;
 
 	@Column("reply_to_id")
 	private UUID replyToId;
 
-	@Column("quote_to_id")
-	private UUID quoteToId;
+	@Column("quote_of_id")
+	private UUID quoteOfId;
+
+	@Column("meta")
+	private MetaInfo meta;
 }

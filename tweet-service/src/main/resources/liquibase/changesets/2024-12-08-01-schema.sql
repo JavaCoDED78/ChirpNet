@@ -2,37 +2,49 @@
 CREATE
     KEYSPACE IF NOT EXISTS tweets WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : '3' };
 
-CREATE TABLE tweet
+CREATE TABLE tweets_by_user
 (
-    id            UUID PRIMARY KEY,
-    text          TEXT,
-    profile_id    TEXT,
-    creation_date TIMESTAMP,
-    media_urls    SET<TEXT>,
-    retweet_to_id UUID,
+    profile_id    UUID,
+    tweet_id      TIMEUUID,
+    content       TEXT,
+    created_at    TIMESTAMP,
+    hashtags      LIST<TEXT>,
+    retweet_of_id UUID,
     reply_to_id   UUID,
-    quote_to_id   UUID
-);
+    quote_of_id   UUID,
+    media_urls    SET<TEXT>,
+    meta          FROZEN<MAP<TEXT, INT>>,
+    PRIMARY KEY ((profile_id), tweet_id)
+) WITH CLUSTERING ORDER BY (tweet_id DESC);
 
-CREATE TABLE like
+CREATE TABLE timeline
 (
-    parent_tweet_id UUID,
-    profile_id      UUID,
-    PRIMARY KEY (parent_tweet_id, profile_id)
-);
+    timeline_id UUID,
+    tweet_id    TIMEUUID,
+    profile_id  UUID,
+    content     TEXT,
+    created_at  TIMESTAMP,
+    media_urls  SET<TEXT>,
+    meta        FROZEN<MAP<TEXT, INT>>,
+    PRIMARY KEY ((timeline_id), tweet_id)
+) WITH CLUSTERING ORDER BY (tweet_id DESC);
 
-CREATE TABLE 'view'
+CREATE TABLE tweets_by_hashtag
 (
-    parent_tweet_id UUID,
-    user_id         UUID,
-    PRIMARY KEY (parent_tweet_id, user_id)
-);
+    hashtag    TEXT,
+    tweet_id   TIMEUUID,
+    profile_id UUID,
+    content    TEXT,
+    created_at TIMESTAMP,
+    media_urls SET<TEXT>,
+    meta       FROZEN<MAP<TEXT, INT>>,
+    PRIMARY KEY ((hashtag), tweet_id)
+) WITH CLUSTERING ORDER BY (tweet_id DESC);
 
-CREATE TABLE tweet_by_profile
+CREATE TABLE likes_by_tweet
 (
-    profile_id    TEXT,
-    id            UUID,
-    text          TEXT,
-    creation_date TIMESTAMP,
-    PRIMARY KEY (profile_id, creation_date)
-) WITH CLUSTERING ORDER BY (creation_date DESC);
+    tweet_id   TIMEUUID,
+    profile_id UUID,
+    created_at TIMESTAMP,
+    PRIMARY KEY ((tweet_id), profile_id)
+);

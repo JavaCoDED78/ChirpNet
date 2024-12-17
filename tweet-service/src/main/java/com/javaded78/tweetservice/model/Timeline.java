@@ -12,22 +12,41 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@Table("likes_by_tweet")
-public class Like {
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Table("timeline")
+public class Timeline {
 
-	@PrimaryKeyColumn(name = "tweet_id", type = PrimaryKeyType.PARTITIONED)
+	@PrimaryKeyColumn(name = "timeline_id", type = PrimaryKeyType.PARTITIONED)
+	@EqualsAndHashCode.Include
+	private UUID timelineId;
+
+	@PrimaryKeyColumn(name = "tweet_id", type = PrimaryKeyType.CLUSTERED)
+	@EqualsAndHashCode.Include
 	private UUID tweetId;
 
-	@PrimaryKeyColumn(name = "profile_id", type = PrimaryKeyType.CLUSTERED)
+	@Column("profile_id")
+	@EqualsAndHashCode.Include
 	private UUID profileId;
+
+	@Column("content")
+	private String content;
 
 	@Column("created_at")
 	private Instant createdAt;
+
+	@Column("hashtags")
+	@Builder.Default
+	private Set<String> mediaUrls = new HashSet<>();
+
+	@Column("meta")
+	private MetaInfo meta;
 }
